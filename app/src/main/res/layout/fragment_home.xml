@@ -1,18 +1,28 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context="app15.aaamobile.view.HomeFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="AAA Mobiles and Computers Sales and Repairs is a Mobiles Store Chain in the UK, who Sales and
-        Repairs . AAA Mobiles increasing its Stores in different locations to facilitates the customer
-        in to their door steps. We have highly qualified and experienced specialist team. We even not only fix basic
-        phone faults like software, speaker and charging faults, we also fix more problematic faults like physical damage.
-        You can GET CASH with our Recycle and Part Exchange Service in the Store. We Buy and Sell Mobiles and Computers.
-        You can contact with us and can get a free quote." />
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:padding="@dimen/padding_margin"
+        android:src="@drawable/aaa" />
 
-</FrameLayout>
+    <TextView
+        android:fontFamily="casual"
+        android:textStyle="bold"
+        android:text="AAA Mobiles and Computers Sales and Repairs is a Mobiles Store Chain in the UK, who Sales and
+Repairs . AAA Mobiles increasing its Stores in different locations to facilitates the customer in to their door steps.
+We have highly qualified and experienced specialist team. We even not only fix basic
+phone faults like software, speaker and charging faults, we also fix more problematic faults like physical damage.
+You can GET CASH with our Recycle and Part Exchange Service in the Store. We Buy and Sell Mobiles and Computers.
+You can contact with us and can get a free quote."
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+</LinearLayout>
