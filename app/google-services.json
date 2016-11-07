@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "903227586553",
+    "firebase_url": "https://aaamobile-5f640.firebaseio.com",
+    "project_id": "aaamobile-5f640",
+    "storage_bucket": "aaamobile-5f640.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:903227586553:android:427c09ddeea20925",
+        "android_client_info": {
+          "package_name": "app15.aaamobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "903227586553-o65og9rk372cp518b4si2080m53nqsos.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "app15.aaamobile",
+            "certificate_hash": "D0E403C416F07FE92075EE16E9C2C2B4E6147E2E"
+          }
+        },
+        {
+          "client_id": "903227586553-ob63lhepdhp7jqqdtndjkob0ogrrumgd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAVU3yDXKRDn1H5h0oUXDIwCJSKq8AGR9c"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "903227586553-ob63lhepdhp7jqqdtndjkob0ogrrumgd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

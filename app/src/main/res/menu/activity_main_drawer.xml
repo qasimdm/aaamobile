@@ -18,6 +18,12 @@
             android:id="@+id/nav_login"
             android:icon="@drawable/ic_menu_login_24dp"
             android:title="Login" />
+        <item
+            android:id="@+id/nav_logout"
+            android:icon="@drawable/ic_menu_login_24dp"
+            android:title="Logout"
+            android:visible="false"
+            />
 
     </group>
 
