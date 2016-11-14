@@ -22,5 +22,16 @@
         <item name="android:layout_marginTop">16dp</item>
         <item name="android:background">?android:attr/listDivider</item>
     </style>
+    <style name="RepairPageFont" parent="@android:style/TextAppearance.Medium">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">#A9A9A9</item>
+    </style>
+    <style name="RepairPageSpinner" parent="@android:style/TextAppearance.Medium">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
 
 </resources>

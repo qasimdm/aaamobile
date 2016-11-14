@@ -20,6 +20,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.firebase.ui.auth.AuthUI;
@@ -31,6 +32,8 @@ import com.google.firebase.auth.FirebaseUser;
 import org.w3c.dom.Text;
 
 import app15.aaamobile.R;
+import app15.aaamobile.controller.CartController;
+import app15.aaamobile.model.Product;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -44,6 +47,7 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG_LOGOUT = "logout";
     private static final String TAG_CONTACT = "contact";
     private static final String TAG_ABOUT = "about";
+    private static final String TAG_SHOPPING_CART = "shopping cart";
     public static String CURRENT_TAG = TAG_HOME;
     private static final String TAG = "MainActivity";
     private static int navItemIndex = 0;
@@ -207,6 +211,7 @@ public class MainActivity extends AppCompatActivity
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
+
     }
 
     @Override
@@ -218,15 +223,14 @@ public class MainActivity extends AppCompatActivity
 
         switch (id) {
             case R.id.action_settings:
-
-                /*mFirebaseAuth.signOut();
-                mFirebaseAuth.GoogleSignInApi.signOut(mGoogleApiClient);
-                mUsername = ANONYMOUS;
-                startActivity(new Intent(this, LoginActivity.class));
                 return true;
-            default:
-                return super.onOptionsItemSelected(item);*/
-        }
+            case R.id.action_cart:
+                CartViewFragment cartViewFragment = new CartViewFragment();
+                CURRENT_TAG = TAG_SHOPPING_CART;
+                navItemIndex = 7;
+                loadNavigatedFragment(cartViewFragment);
+                return true;
+            }
 
         return super.onOptionsItemSelected(item);
     }

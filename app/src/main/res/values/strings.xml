@@ -17,6 +17,41 @@
         <item>Logout</item>
         <item>Contact us</item>
         <item>About</item>
+        <item>Shopping Cart</item>
+    </string-array>
+    <string-array name="array_companies">
+        <item>Select Make</item>
+        <item>Iphone</item>
+        <item>Samsung</item>
+    </string-array>
+    <string-array name="array_model_iphone">
+        <item>Select Model</item>
+        <item>Iphone 4</item>
+        <item>Iphone 4S</item>
+        <item>Iphone 5</item>
+        <item>Iphone 5C</item>
+        <item>Iphone 5S</item>
+        <item>Iphone 6</item>
+        <item>Iphone 6S</item>
+        <item>Iphone 6S Plus</item>
+        <item>Iphone 7</item>
+    </string-array>
+    <string-array name="array_model_samsung">
+        <item>Select Model</item>
+        <item>Samsung galaxy 5</item>
+        <item>Samsung galaxy 6</item>
+        <item>Samsung galaxy 7</item>
+    </string-array>
+    <string-array name="array_problem">
+        <item>Select Problem</item>
+        <item>Broken Screen</item>
+        <item>Charging port</item>
+        <item>Back cover</item>
+        <item>Battery</item>
+        <item>Loud speaker</item>
+        <item>Ear phone jack</item>
+        <item>Home button</item>
+        <item>Volume button / Power button</item>
     </string-array>
     <string name="title_activity_login">Sign in</string>
 
@@ -33,4 +68,7 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

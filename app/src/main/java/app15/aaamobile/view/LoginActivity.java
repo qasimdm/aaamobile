@@ -45,21 +45,24 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import app15.aaamobile.R;
+import app15.aaamobile.model.User;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
 /**
- * A login screen that offers login via email/password.
+ * A login screen that offers login via email/password, Gmail and register a new account.
  */
 public class LoginActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener { //LoaderCallbacks<Cursor>,
-
-    //Id to identity READ_CONTACTS permission request.
-    private static final int REQUEST_READ_CONTACTS = 0;
 
     private static final String TAG = "LoginActivity";
     private static final int RC_SIGN_IN = 9001;
@@ -78,6 +81,8 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     // Firebase instance variables
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
+    private FirebaseDatabase database;
+    private DatabaseReference databaseReference;
 
 
     @Override
@@ -86,26 +91,17 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         setContentView(R.layout.activity_login);
         setupActionBar();
 
-        // Initialize FirebaseAuth
-        mFirebaseAuth = FirebaseAuth.getInstance();
-
-        //GoogleApiClient settings
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build();
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
-                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
-                .build();
-
+        //getting UI references
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
-        // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
-        //populateAutoComplete();
-
         mPasswordView = (EditText) findViewById(R.id.password);
+
+        // Initialize FirebaseAuth
+        mFirebaseAuth = FirebaseAuth.getInstance();
+        setupDatabaseAndEventListener();
+        setupGoogleApiClient();
+
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
@@ -120,6 +116,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         com.google.android.gms.common.SignInButton gmailSignInButton = (com.google.android.gms.common.SignInButton) findViewById(R.id.gmail_sign_in_button);
         mSignUpButton = (Button) findViewById(R.id.sign_up_button);
+
         //Button click listeners
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -141,15 +138,52 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         });
 
     }
+    //Setting up Google Api Client
+    private void setupGoogleApiClient(){
+        //GoogleApiClient settings
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
+                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .build();
+    }
+    //Firebase database setup and setting an EventListener on it
+    private void setupDatabaseAndEventListener() {
+        database = FirebaseDatabase.getInstance();
+        databaseReference = database.getReference().child("users");
+        databaseReference.child("users").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                //This method is called once with initial value
+                // and when data at this location is updated
+                User user = dataSnapshot.getValue(User.class);
+                if (user == null) {
+                    //User is null, error out
+                    Log.e(TAG, "User object is null");
+                } else {
 
-    //Step 1. Sign in with google
+                }
+                //Log.i(TAG, "Value is: " + user.toString());
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                //Failed to read the value
+                Log.i(TAG, "Failed to read value. ", databaseError.toException());
+            }
+        });
+    }
+
+    //Step 1. Sign in with google, starts an intent for login google view
     private void signInWithGoogle() {
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
 
-    //Step 2. Google authenticate
+    //Step 2. Google authentication, if success, then triggers firebaseAuthWithGoogle
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -171,7 +205,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         }
     }
 
-    //Step 3. Google authenticate with firebase
+    //Step 3. Google authenticate with firebase, if success then saves the credentials in the database
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
         Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
         final AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
@@ -191,8 +225,11 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                         }
                         //After user has logged in
                         else {
+                            //save in the database
+                            writeFirebaseDatabase("");
+
                             FirebaseUser user = mFirebaseAuth.getCurrentUser();
-                            Log.i(TAG, "CurrentUser " + mFirebaseAuth.getCurrentUser() + " and email id: " + user.getEmail());
+                            Log.i(TAG, "CurrentUser " + user + " and email id: " + user.getEmail());
                             Toast.makeText(LoginActivity.this, "Welcome " + user.getEmail(), Toast.LENGTH_LONG).show();
                             startActivity(new Intent(LoginActivity.this, MainActivity.class));
                             finish();
@@ -200,11 +237,12 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                     }
                     //handleFirebaseAuthResult(AuthResult);
                 });
-    }
+    }//END fireBaseAuthWithGoogle
+
     //Create new account using Email and Password
-    private void createAccount(String email, String password) {
-        Log.i(TAG, "createAccount:" + email);
-        if (!isEmailValid(email) || !isPasswordValid(password)) {
+    private void createAccount(final String email, final String password) {
+        Log.i(TAG, "createAccount: Email = " + email);
+        if (!validateForm()) {
             return;
         }
 
@@ -218,73 +256,34 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
 
                         // If sign in fails, display a message to the user.
-                        if (!task.isSuccessful()) {
+                        if (task.isSuccessful()) {
+                            writeFirebaseDatabase(password);
+                            attemptLogin();
+                        } else {
                             Toast.makeText(LoginActivity.this, "Authentication failed!",
                                     Toast.LENGTH_SHORT).show();
                         }
                         // If sign in succeeds, the auth state listener will be notified and logic to handle the
                         // signed in user can be handled in the listener.
 
-                        //hideProgressDialog();
+                        showProgress(false);
                     }
                 });
+    }//END createAccount
 
-    } //end createUserWithEmailAndPassword
-
-    /*private void populateAutoComplete() {
-        if (!mayRequestContacts()) {
-            return;
+    //end createUserWithEmailAndPassword
+    private void writeFirebaseDatabase(String password) {
+        String uid = mFirebaseAuth.getCurrentUser().getUid();
+        String email = mFirebaseAuth.getCurrentUser().getEmail();
+        String name = mFirebaseAuth.getCurrentUser().getDisplayName();
+        if (name == null) {
+            name = "";
         }
-
-        if (VERSION.SDK_INT >= 14) {
-            // Use ContactsContract.Profile (API 14+)
-            getLoaderManager().initLoader(0, null, this);
-        } else if (VERSION.SDK_INT >= 8) {
-            // Use AccountManager (API 8+)
-            new SetupEmailAutoCompleteTask().execute(null, null);
-        }
-    }*/
-
-    //ask for access to the contacts
-    /*private boolean mayRequestContacts() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            return true;
-        }
-        if (checkSelfPermission(READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
-            return true;
-        }
-        if (shouldShowRequestPermissionRationale(READ_CONTACTS)) {
-            Snackbar.make(mEmailView, R.string.permission_rationale, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(android.R.string.ok, new View.OnClickListener() {
-                        @Override
-                        @TargetApi(Build.VERSION_CODES.M)
-                        public void onClick(View v) {
-                            requestPermissions(new String[]{READ_CONTACTS}, REQUEST_READ_CONTACTS);
-                        }
-                    });
-        } else {
-            requestPermissions(new String[]{READ_CONTACTS}, REQUEST_READ_CONTACTS);
-        }
-        return false;
+        User createUser = new User(uid, email, name, password);
+        databaseReference.child(uid).setValue(createUser);
     }
-*/
-    /**
-     * Callback received when a permissions request has been completed.
-     */
-    /*
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        if (requestCode == REQUEST_READ_CONTACTS) {
-            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                populateAutoComplete();
-            }
-        }
-    }
-*/
-    /**
-     * Set up the {@link android.app.ActionBar}, if the API is available.
-     */
+
+    // Set up the {@link android.app.ActionBar}, if the API is available.
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private void setupActionBar() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
@@ -292,7 +291,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
     }
-
+    // Validates the whole login form for errors
     private boolean validateForm() {
         boolean valid = true;
         View focusView = null;
@@ -308,8 +307,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             mEmailView.setError(getString(R.string.error_field_required));
             focusView = mEmailView;
             valid = false;
-        }
-        else if (!isEmailValid(email)) {
+        } else if (!isEmailValid(email)) {
             mEmailView.setError(getString(R.string.error_invalid_email));
             focusView = mEmailView;
             valid = false;
@@ -321,20 +319,21 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             focusView = mPasswordView;
             valid = false;
         }
-        if(!valid){
+        if (!valid) {
             focusView.requestFocus();
         }
 
         return valid;
     }
+
     private boolean isEmailValid(String email) {
         return email.contains("@");
     }
 
     private boolean isPasswordValid(String password) {
-        return password.length() > 4;
+        return password.length() > 5;
     }
-
+    //triggered when user tries to login with email and password
     private void attemptLogin() {
         if (mAuthTask != null) {
             return;
@@ -342,10 +341,9 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         String email = mEmailView.getText().toString();
         String password = mPasswordView.getText().toString();
 
-        if (!validateForm()){
+        if (!validateForm()) {
             return;
-        }
-        else {
+        } else {
             // Show a progress spinner
             showProgress(true);
             //Otherwise kick off a background task to
@@ -356,11 +354,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         }
     }
 
-
-
-    /**
-     * Shows the progress UI and hides the login form.
-     */
+    // Shows the progress UI and hides the login form.
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     private void showProgress(final boolean show) {
         // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
@@ -394,49 +388,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         }
     }
 
-   /* @Override
-    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        return new CursorLoader(this,
-                // Retrieve data rows for the device user's 'profile' contact.
-                Uri.withAppendedPath(ContactsContract.Profile.CONTENT_URI,
-                        ContactsContract.Contacts.Data.CONTENT_DIRECTORY), ProfileQuery.PROJECTION,
-
-                // Select only email addresses.
-                ContactsContract.Contacts.Data.MIMETYPE +
-                        " = ?", new String[]{ContactsContract.CommonDataKinds.Email
-                .CONTENT_ITEM_TYPE},
-
-                // Show primary email addresses first. Note that there won't be
-                // a primary email address if the user hasn't specified one.
-                ContactsContract.Contacts.Data.IS_PRIMARY + " DESC");
-    }*/
-/*
-    @Override
-    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-        List<String> emails = new ArrayList<>();
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            emails.add(cursor.getString(ProfileQuery.ADDRESS));
-            cursor.moveToNext();
-        }
-
-        addEmailsToAutoComplete(emails);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> cursorLoader) {
-
-    }
-
-    private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
-        //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
-        ArrayAdapter<String> adapter =
-                new ArrayAdapter<>(LoginActivity.this,
-                        android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
-
-        mEmailView.setAdapter(adapter);
-    }
-*/
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         // An unresolvable error has occurred and Google APIs (including Sign-In) will not
@@ -444,52 +395,8 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         Log.d(TAG, "onConnectionFailed:" + connectionResult);
         Toast.makeText(this, "Google Play Services error.", Toast.LENGTH_SHORT).show();
     }
-/*
-    private interface ProfileQuery {
-        String[] PROJECTION = {
-                ContactsContract.CommonDataKinds.Email.ADDRESS,
-                ContactsContract.CommonDataKinds.Email.IS_PRIMARY,
-        };
 
-        int ADDRESS = 0;
-        int IS_PRIMARY = 1;
-    }
-*/
-    /**
-     * Use an AsyncTask to fetch the user's email addresses on a background thread, and update
-     * the email text field with results on the main UI thread.
-     */
-    /*
-    class SetupEmailAutoCompleteTask extends AsyncTask<Void, Void, List<String>> {
-
-        @Override
-        protected List<String> doInBackground(Void... voids) {
-            ArrayList<String> emailAddressCollection = new ArrayList<>();
-
-            // Get all emails from the user's contacts and copy them to a list.
-            ContentResolver cr = getContentResolver();
-            Cursor emailCur = cr.query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, null,
-                    null, null, null);
-            while (emailCur.moveToNext()) {
-                String email = emailCur.getString(emailCur.getColumnIndex(ContactsContract
-                        .CommonDataKinds.Email.DATA));
-                emailAddressCollection.add(email);
-            }
-            emailCur.close();
-
-            return emailAddressCollection;
-        }
-
-        @Override
-        protected void onPostExecute(List<String> emailAddressCollection) {
-            addEmailsToAutoComplete(emailAddressCollection);
-        }
-    }
-*/
-    /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
-     */
+    // Represents an asynchronous login/registration task used to authenticate
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
         private final String mEmail;
@@ -516,9 +423,9 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         //sign in with existing account
         private void signIn(String email, String password) {
             Log.d(TAG, "signIn:" + email);
-        if (!validateForm()) {
-            return;
-        }
+            if (!validateForm()) {
+                return;
+            }
             // sign_in_with_email
             mFirebaseAuth.signInWithEmailAndPassword(email, password)
                     .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
@@ -533,8 +440,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                                 Log.w(TAG, "signInWithEmail:failed", task.getException());
                                 Toast.makeText(LoginActivity.this, "Authentication failed!",
                                         Toast.LENGTH_SHORT).show();
-                            }
-                            else{
+                            } else {
                                 startActivity(new Intent(LoginActivity.this, MainActivity.class));
                                 finish();
                             }
@@ -543,6 +449,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                     });
             // END sign_in_with_email
         }
+
         @Override
         protected void onPostExecute(final Boolean success) {
             mAuthTask = null;
@@ -563,15 +470,3 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         }
     }
 }
-
-/*
-    private void handleFirebaseAuthResult(AuthResult authResult) {
-        if (authResult != null) {
-            // Welcome the user
-            FirebaseUser user = authResult.getUser();
-            Toast.makeText(this, "Welcome " + user.getEmail(), Toast.LENGTH_SHORT).show();
-
-            // Go back to the main activity
-            startActivity(new Intent(this, MainActivity.class));
-        }
-    }*/
