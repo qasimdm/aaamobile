@@ -1,0 +1,49 @@
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="app15.aaamobile.view.RepairFragment">
+
+    <TextView
+        style="@style/RepairPageFont"
+        android:text="Make" />
+
+    <Spinner
+        android:id="@+id/spinnerMake"
+        style="@style/RepairPageSpinner"></Spinner>
+
+    <TextView
+        style="@style/RepairPageFont"
+        android:text="Model" />
+
+    <Spinner
+        android:id="@+id/spinnerModel"
+        style="@style/RepairPageSpinner"></Spinner>
+
+    <TextView
+        style="@style/RepairPageFont"
+        android:text="Select Problem(s)" />
+
+    <app15.aaamobile.view.MultiSelectionSpinner
+        android:id="@+id/spinnerProblem"
+        style="@style/RepairPageSpinner" />
+
+
+    <EditText
+        android:id="@+id/et_other_problem"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:hint="Specify/other problems"
+        android:maxHeight="150dp" />
+
+    <Button
+        android:id="@+id/btn_place_order"
+        android:text="Add to cart"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>

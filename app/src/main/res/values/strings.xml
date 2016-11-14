@@ -4,7 +4,70 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
-    <string name="action_settings">Settings</string>
+    <string name="action_setting">Settings</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+
+    <!-- Toolbar titles when navigation menu item is selected -->
+    <string-array name="nav_item_activity_titles">
+        <item>Home</item>
+        <item>Repair</item>
+        <item>Prices</item>
+        <item>Login</item>
+        <item>Logout</item>
+        <item>Contact us</item>
+        <item>About</item>
+        <item>Shopping Cart</item>
+    </string-array>
+    <string-array name="array_companies">
+        <item>Select Make</item>
+        <item>Iphone</item>
+        <item>Samsung</item>
+    </string-array>
+    <string-array name="array_model_iphone">
+        <item>Select Model</item>
+        <item>Iphone 4</item>
+        <item>Iphone 4S</item>
+        <item>Iphone 5</item>
+        <item>Iphone 5C</item>
+        <item>Iphone 5S</item>
+        <item>Iphone 6</item>
+        <item>Iphone 6S</item>
+        <item>Iphone 6S Plus</item>
+        <item>Iphone 7</item>
+    </string-array>
+    <string-array name="array_model_samsung">
+        <item>Select Model</item>
+        <item>Samsung galaxy 5</item>
+        <item>Samsung galaxy 6</item>
+        <item>Samsung galaxy 7</item>
+    </string-array>
+    <string-array name="array_problem">
+        <item>Select Problem</item>
+        <item>Broken Screen</item>
+        <item>Charging port</item>
+        <item>Back cover</item>
+        <item>Battery</item>
+        <item>Loud speaker</item>
+        <item>Ear phone jack</item>
+        <item>Home button</item>
+        <item>Volume button / Power button</item>
+    </string-array>
+    <string name="title_activity_login">Sign in</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password (optional)</string>
+    <string name="action_sign_in">Sign in</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="action_sign_up">Sign Up</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
