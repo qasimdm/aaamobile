@@ -11,6 +11,7 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import app15.aaamobile.R;
 import app15.aaamobile.controller.CartController;
@@ -24,6 +25,7 @@ public class CartViewFragment extends Fragment {
 
     ListView lvCartItems;
     CartController cartController;
+    TextView tvTotalPrice;
 
     public CartViewFragment() {
         // Required empty public constructor
@@ -35,10 +37,12 @@ public class CartViewFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_cart_view, container, false);
         lvCartItems = (ListView)view.findViewById(R.id.lv_cart_items);
+        tvTotalPrice = (TextView)view.findViewById(R.id.tvTotalPrice);
         cartController = new CartController();
 
         ProductAdapter adapterLVCartItems = new ProductAdapter(getContext(), android.R.layout.simple_list_item_1, cartController.myProducts);
         lvCartItems.setAdapter(adapterLVCartItems);
+        tvTotalPrice.setText(""+ cartController.getTotalPrice());
 
         return view;
     }

@@ -32,7 +32,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1.2"
             android:gravity="center"
-            android:text="Price"
+            android:text="Price(£)"
             android:textColor="@android:color/white"
             android:textSize="@dimen/product_list_header_text_size"/>
 </LinearLayout>

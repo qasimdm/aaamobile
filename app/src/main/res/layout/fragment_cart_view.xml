@@ -84,7 +84,7 @@
             android:textStyle="bold" />
 
         <Button
-            android:id="@+id/bShop"
+            android:id="@+id/btnShop"
             android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight="0.5"

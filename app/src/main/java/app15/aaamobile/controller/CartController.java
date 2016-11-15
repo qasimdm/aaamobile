@@ -34,5 +34,14 @@ public class CartController extends Application{
 
         return myProducts.size();
     }
+    public double getTotalPrice(){
+        double totalPrice = 0;
+        if (myProducts.size()>0) {
+            for (Product product : myProducts) {
+                totalPrice += product.getProductPrice();
+            }
+        }
+        return totalPrice;
+    }
 
 }
