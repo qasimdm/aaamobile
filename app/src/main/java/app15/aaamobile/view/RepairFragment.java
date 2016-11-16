@@ -49,7 +49,7 @@ public class RepairFragment extends Fragment implements AdapterView.OnItemSelect
         spinnerMake = (Spinner)view.findViewById(R.id.spinnerMake);
         spinnerModel = (Spinner)view.findViewById(R.id.spinnerModel);
         spinnerProblem = (MultiSelectionSpinner) view.findViewById(R.id.spinnerProblem);
-        btnAddToCart = (Button)view.findViewById(R.id.btn_place_order);
+        btnAddToCart = (Button)view.findViewById(R.id.btnAddToCart);
 
         cartController = new CartController();
         // Spinner Drop down elements
@@ -99,6 +99,7 @@ public class RepairFragment extends Fragment implements AdapterView.OnItemSelect
                 if ( (model != SELECT_MODEL) && ((problem != SELECT_PROBLEM) && (problem != "") && (problem != null) )) {
                     Product order = new Product(make + model, problem, 100);
                     cartController.myProducts.add(order);
+                    Toast.makeText(getContext(), "Order added successfully to the cart", Toast.LENGTH_SHORT).show();
                 }
                 else{
                     Toast.makeText(getContext(), "Order not added to the cart. Select the required fields first.", Toast.LENGTH_SHORT ).show();

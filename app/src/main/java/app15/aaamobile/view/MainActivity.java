@@ -108,6 +108,8 @@ public class MainActivity extends AppCompatActivity
             }//onAuthStateChanged
         };
         //Initilize firebase and check if the user is signed in otherwise popup sign in view
+
+
         initFirebaseAndCheckIfSignedIn();
     }
     private void loadNavigatedFragment(final Fragment fragment) {
