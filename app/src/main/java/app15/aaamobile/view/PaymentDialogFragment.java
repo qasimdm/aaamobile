@@ -9,10 +9,13 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTabHost;
 import android.support.v4.view.ViewPager;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TabHost;
 import android.widget.TextView;
 
@@ -36,16 +39,10 @@ public class PaymentDialogFragment extends DialogFragment {
 
             mTabHost = (FragmentTabHost) view.findViewById(R.id.tabHost);
             mTabHost.setup(getActivity(), getChildFragmentManager());
-            //mTabHost.addTab(mTabHost.newTabSpec("tab1").setIndicator("Paypal"), Fragment.class, null);
-            /*TabHost.TabSpec tabPaypal = mTabHost.newTabSpec("tab1");
-            tabPaypal.setIndicator("Paypal",getResources().getDrawable(R.drawable.ic_delete_24dp));
-            Intent intentPaypal = new Intent(getContext(), PaymentDialogFragment.class);
-            tabPaypal.setContent(intentPaypal);
-            mTabHost.addTab(tabPaypal);
-            mTabHost.getTabWidget().getChildAt(0).setBackgroundResource(R.drawable.ic_delete_24dp);*/
 
-            setupTab(new ImageButton(getContext()), "Paypal");
-            //mTabHost.addTab(mTabHost.newTabSpec("tab1").setIndicator("Paypal", getResources().getDrawable(android.R.drawable.arrow_down_float)));
+            //Setting Paypal tab
+            setupTab(new ImageView(getContext()), "Paypal");
+            //Setting Card Payment tab
             mTabHost.addTab(mTabHost.newTabSpec("tab2").setIndicator("Bank/Credit Card"), Fragment.class, null);
 
 
@@ -55,18 +52,19 @@ public class PaymentDialogFragment extends DialogFragment {
             viewPager = (ViewPager)view.findViewById(R.id.pager);
             viewPager.setAdapter(adapter);
 
-            viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
                 @Override
-                public void onPageScrolled(int i, float v, int i2) {
+                public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
                 }
 
                 @Override
-                public void onPageSelected(int i) {
-                    mTabHost.setCurrentTab(i);
+                public void onPageSelected(int position) {
+
                 }
 
                 @Override
-                public void onPageScrollStateChanged(int i) {
+                public void onPageScrollStateChanged(int state) {
 
                 }
             });
@@ -92,8 +90,13 @@ public class PaymentDialogFragment extends DialogFragment {
     }
     private static View createTabView(final Context context, final String text) {
         View view = LayoutInflater.from(context).inflate(R.layout.tabs_background, null);
-        ImageButton tv = (ImageButton) view.findViewById(R.id.tabBg);
-        tv.setImageResource(R.drawable.pp_cc_mark);
+        ImageView img_paypal = (ImageView) view.findViewById(R.id.tabBg);
+        img_paypal.setImageResource(R.drawable.pp_cc_mark);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.weight = 1.0f;
+        params.gravity = Gravity.CENTER;
+        img_paypal.setLayoutParams(params);
+
         return view;
     }
 
@@ -108,7 +111,6 @@ public class PaymentDialogFragment extends DialogFragment {
                 super(fm);
             }
 
-
             public PaymentPagerAdapter(FragmentManager fm, Bundle bundle) {
                 super(fm);
                 this.bundle = bundle;
@@ -116,12 +118,14 @@ public class PaymentDialogFragment extends DialogFragment {
 
             @Override
             public Fragment getItem(int num) {
-                Fragment fragment = new AboutFragment();
-                /*Bundle args = new Bundle();
-                args.putSerializable("voters",bundle.getSerializable( num == 0 ? "pros" : "cons"));
-                fragment.setArguments(args);*/
+                Fragment fragment;
+                if (num == 0){
+                    fragment = new PaypalFragment();
+                }
+                else {
+                    fragment = new CardPayment();
+                }
                 return fragment;
-
             }
 
 
@@ -139,36 +143,5 @@ public class PaymentDialogFragment extends DialogFragment {
                 this.titles = titles;
             }
         }
-
-        /*public static class VotersListFragment extends ListFragment {
-
-            List<String> voters = new ArrayList<>();
-
-            @Override
-            public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-                View view = inflater.inflate(R.layout.fragment_about, container, false);
-                return view;
-            }
-
-            @Override
-            public void onActivityCreated(Bundle savedInstanceState) {
-
-                super.onActivityCreated(savedInstanceState);
-               // voters = (ArrayList) getArguments().getSerializable("voters");
-
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, voters);
-                setListAdapter(adapter);
-
-                getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-
-                    }
-                });
-
-            }
-
-        }*/
-
 
 }

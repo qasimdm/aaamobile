@@ -30,9 +30,12 @@ public class CartController extends Application{
 
     }
 
-    public int getProductsArraylistSize() {
+    public int getProductsCount() {
 
         return myProducts.size();
+    }
+    public void clearCart(){
+        myProducts.clear();
     }
     public double getTotalPrice(){
         double totalPrice = 0;

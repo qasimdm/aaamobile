@@ -82,6 +82,7 @@ public class MainActivity extends AppCompatActivity
         //Default fragment is HomeFragment when user starts the app
         mHandler = new Handler();
         activityTitles = getResources().getStringArray(R.array.nav_item_activity_titles);
+        navItemIndex = 0;
         loadNavigatedFragment(new HomeFragment());
 
         // Firebase Authentication state listener

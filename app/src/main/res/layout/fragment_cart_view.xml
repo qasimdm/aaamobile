@@ -35,6 +35,16 @@
         android:layout_height="fill_parent"
         android:layout_above="@+id/llTotal"
         android:layout_below="@id/layout_cart_header" />
+    <TextView
+        android:id="@+id/tv_empty_cart_msg"
+        android:text="Your cart is currently empty."
+        android:textSize="@dimen/header_text_size"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/layout_cart_header"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
     <LinearLayout
         android:id="@+id/llTotal"
@@ -73,7 +83,7 @@
         android:weightSum="1">
 
         <Button
-            android:id="@+id/bClear"
+            android:id="@+id/btn_clear_cart"
             android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight="0.5"
@@ -84,7 +94,7 @@
             android:textStyle="bold" />
 
         <Button
-            android:id="@+id/btnShop"
+            android:id="@+id/btn_checkout"
             android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight="0.5"

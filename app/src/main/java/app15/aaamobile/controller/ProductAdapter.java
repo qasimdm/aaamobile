@@ -14,6 +14,7 @@ import java.util.List;
 
 import app15.aaamobile.R;
 import app15.aaamobile.model.Product;
+import app15.aaamobile.view.CartViewFragment;
 
 /**
  * Created by umyhafzaqa on 2016-11-10.
@@ -22,10 +23,14 @@ public class ProductAdapter extends ArrayAdapter<Product> {
 
     ImageButton btnDeleteItem;
     CartController cartController;
+    CartViewFragment cartObject;
+    TextView tvEmptyCart;
 
-    public ProductAdapter(Context context, int resource, ArrayList<Product> objects) {
+    public ProductAdapter(Context context, int resource, ArrayList<Product> objects, CartViewFragment cartObject) {
         super(context, resource, objects);
         cartController = new CartController();
+        this.cartObject = cartObject;
+        //this.tvEmptyCart = tvEmptyCart;
     }
 
     @Override
@@ -49,6 +54,7 @@ public class ProductAdapter extends ArrayAdapter<Product> {
                 Toast.makeText(getContext(), "Deleted.", Toast.LENGTH_SHORT).show();
                 cartController.myProducts.remove(position);
                 notifyDataSetChanged();
+                cartObject.checkIfCartEmpty();
             }
         });
 
