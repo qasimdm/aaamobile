@@ -6,8 +6,15 @@
 
     <!-- TODO: Update blank fragment layout -->
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="prices fragment" />
+        android:fontFamily="casual"
+        android:textStyle="bold"
+        android:padding="@dimen/activity_horizontal_margin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="We sale and repair all type of mobile phone, ipads, ipods , laptops and desktop computers. We have highly skilled team with vast experience . We can fix all type of phone and computers problem in very reasonable prices. For Free quote please call us today or send us a Free quote request. We are open 7 days a week 9AM-5:30PM Mon-Sat, 10AM-4PM on Sunday.
+
+For Manchester Call Us on: 0161 864 4787
+For Altrincham Call Us on : 0161 929 4913
+For Rochdale Call Us on : 0170 675 9268" />
 
 </FrameLayout>

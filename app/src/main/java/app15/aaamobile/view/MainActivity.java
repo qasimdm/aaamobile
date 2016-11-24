@@ -1,16 +1,15 @@
 package app15.aaamobile.view;
 
-import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceActivity;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
-import android.view.LayoutInflater;
+import android.view.MenuInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -20,8 +19,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -29,27 +30,33 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-import org.w3c.dom.Text;
-
 import app15.aaamobile.R;
 import app15.aaamobile.controller.CartController;
-import app15.aaamobile.model.Product;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-
     // tags used to attach the fragments
-    private static final String TAG_HOME = "home";
-    private static final String TAG_REPAIR = "repair";
-    private static final String TAG_PRICES = "prices";
-    private static final String TAG_LOGIN = "login";
-    private static final String TAG_LOGOUT = "logout";
-    private static final String TAG_CONTACT = "contact";
-    private static final String TAG_ABOUT = "about";
-    private static final String TAG_SHOPPING_CART = "shopping cart";
-    public static String CURRENT_TAG = TAG_HOME;
-    private static final String TAG = "MainActivity";
+    private final String TAG_HOME = "home";
+    private final String TAG_REPAIR = "repair";
+    private final String TAG_PRICES = "prices";
+    private final String TAG_LOGOUT = "logout";
+    private final String TAG_CONTACT = "contact";
+    private final String TAG_ABOUT = "about";
+    private final String TAG_SHOPPING_CART = "shopping cart";
+    public String CURRENT_TAG = TAG_HOME;
+    private final String TAG = "MainActivity";
+    private final int homeItem = 0;
+    private final int repairItem = 1;
+    private final int pricesItem = 2;
+    //private final int loginItem = 3;
+    //private final int logoutItem = 4;
+    private final int contactUsItem = 5;
+    private final int aboutItem = 6;
+    private final int cartItem = 7;
+
+    //static TextView tvNotificationCount;
+    public static int mNotificationCount = 0;
     private static int navItemIndex = 0;
 
     // toolbar titles respected to selected nav menu item
@@ -62,7 +69,7 @@ public class MainActivity extends AppCompatActivity
     private FirebaseUser mFirebaseUser;
 
     private DrawerLayout drawer;
-    NavigationView navigationView;
+    private NavigationView navigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,62 +89,36 @@ public class MainActivity extends AppCompatActivity
         //Default fragment is HomeFragment when user starts the app
         mHandler = new Handler();
         activityTitles = getResources().getStringArray(R.array.nav_item_activity_titles);
-        navItemIndex = 0;
-        loadNavigatedFragment(new HomeFragment());
+        Log.i(TAG, "Current tag: "+CURRENT_TAG + " and navItemIndex: "+ navItemIndex);
+        loadNavigatedFragment(new HomeFragment(), CURRENT_TAG, homeItem);   //Opens home fragment everytime user closes and then resumes the app
 
         // Firebase Authentication state listener
         mFirebaseAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                //get reference to the header view
-                View headerView = navigationView.getHeaderView(0);
-                TextView navHeaderUserEmail = (TextView) headerView.findViewById(R.id.nav_header_email);
-                if (user != null) {
-                    // User is signed in
-                    Log.i(TAG, "onAuthStateChanged:signed_in:" + user.getEmail().toString());
-                    if (user.getEmail().toString() != null) {
-                        navHeaderUserEmail.setText(user.getEmail().toString());
-
-                    }//inner if
-                }//outer if
-                else {
-                    // User is signed out
-                    navHeaderUserEmail.setText("Guest");
-                    Log.i(TAG, "onAuthStateChanged:signed_out" );
-                }//else
+                initFirebaseAndCheckIfSignedIn();
             }//onAuthStateChanged
         };
-        //Initilize firebase and check if the user is signed in otherwise popup sign in view
-
-
+        //Initilize firebase and check if the user is signed in otherwise welcome Guest
         initFirebaseAndCheckIfSignedIn();
     }
-    private void loadNavigatedFragment(final Fragment fragment) {
-        // selecting appropriate nav menu item
-        //selectNavMenu();
-        // set toolbar title
+    private void loadNavigatedFragment(final Fragment fragment, String fragmentTag, int currentItemIndex) {
+        CURRENT_TAG = fragmentTag;
+        navItemIndex = currentItemIndex;
         setToolbarTitle();
-
         // if user select the current navigation menu again, don't do anything
-        // just close the navigation drawer
         if (getSupportFragmentManager().findFragmentByTag(CURRENT_TAG) != null) {
             drawer.closeDrawers();
             return;
         }
-
-        // Sometimes, when fragment has huge data, screen seems hanging
-        // when switching between navigation menus
-        // So using runnable, the fragment is loaded with cross fade effect
-        // This effect can be seen in GMail app
+        // using runnable, the fragment is loaded with cross fade effect
         Runnable mPendingRunnable = new Runnable() {
             @Override
             public void run() {
                 // update the main content by replacing fragments
-                Fragment currentFragment = fragment;
+                //Fragment currentFragment = fragment;
                 FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                fragmentTransaction.setCustomAnimations(android.R.anim.fade_in,
-                        android.R.anim.fade_out);
+                fragmentTransaction.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out);
                 fragmentTransaction.replace(R.id.frame, fragment, CURRENT_TAG);
                 fragmentTransaction.commitAllowingStateLoss();
             }
@@ -147,10 +128,8 @@ public class MainActivity extends AppCompatActivity
         if (mPendingRunnable != null) {
             mHandler.post(mPendingRunnable);
         }
-
         //Closing drawer on item click
         drawer.closeDrawers();
-
         // refresh toolbar menu
         invalidateOptionsMenu();
     }
@@ -166,25 +145,34 @@ public class MainActivity extends AppCompatActivity
         Menu menu = navigationView.getMenu();
         MenuItem menuItemLogin = menu.findItem(R.id.nav_login);
         MenuItem menuItemLogout = menu.findItem(R.id.nav_logout);
+        View headerView = navigationView.getHeaderView(0);
+        TextView navHeaderUserEmail = (TextView) headerView.findViewById(R.id.nav_header_email);
 
         if (mFirebaseUser == null) {
             // Not signed in
             menuItemLogin.setVisible(true);
             menuItemLogout.setVisible(false);
-            //startActivity(new Intent(this, LoginActivity.class));
-            //finish();
-
-            return;
+            navHeaderUserEmail.setText("Guest");
+            loadNavigatedFragment(new HomeFragment(), TAG_HOME, homeItem);  //Load default Home fragment
+            CartController cartController = new CartController();
+            cartController.clearCart();                                     //Remove all items from the cart
+            mNotificationCount = cartController.getProductsCount();
         } else {
             menuItemLogin.setVisible(false);
             menuItemLogout.setVisible(true);
+            if (mFirebaseUser.getEmail().toString() != null) {
+                navHeaderUserEmail.setText(mFirebaseUser.getEmail().toString());
+            }
             String mUsername = mFirebaseUser.getDisplayName();
             //add profile pic funtionality later on
             if (mFirebaseUser.getPhotoUrl() != null) {
                String mPhotoUrl = mFirebaseUser.getPhotoUrl().toString();
             }
         }
+        setToolbarTitle();
+        invalidateOptionsMenu();    //re draw the action toolbar
     }
+
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -211,9 +199,44 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        Drawable mDrawable = getResources().getDrawable(R.drawable.ic_shopping_cart_24dp);
+        if (mNotificationCount>0) {
+            mDrawable.setTint(Color.GREEN);     // TODO: 2016-11-24 change cart icon from background to src in xml and try setColorFilter
+            //mDrawable.setColorFilter(new PorterDuffColorFilter(Color.GREEN, PorterDuff.Mode.SRC_IN));
+        }
+        else{
+            mDrawable.setTint(Color.WHITE);
+        }
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main, menu);
+
+        MenuItem item = menu.findItem(R.id.action_cart);
+        //MenuItemCompat.setActionView(item, R.layout.actionbar_badge_layout);
+        RelativeLayout badgeLayout = (RelativeLayout)item.getActionView();
+        ImageButton iconCart = (ImageButton)badgeLayout.findViewById(R.id.badge_icon_button);
+        TextView tvBadge = (TextView)badgeLayout.findViewById(R.id.badge_textView);
+
+        mDrawable.mutate();
+        if (mNotificationCount>0) {
+            tvBadge.setText("" + mNotificationCount);
+            tvBadge.setVisibility(View.VISIBLE);
+        }
+        else {
+            tvBadge.setVisibility(View.GONE);
+        }
+
+        iconCart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                CartViewFragment cartViewFragment = new CartViewFragment();
+                CURRENT_TAG = TAG_SHOPPING_CART;
+                navItemIndex = 7;
+                loadNavigatedFragment(cartViewFragment, TAG_SHOPPING_CART, cartItem);
+            }
+        });
+
+        return super.onCreateOptionsMenu(menu);
 
     }
 
@@ -226,12 +249,6 @@ public class MainActivity extends AppCompatActivity
 
         switch (id) {
             case R.id.action_settings:
-                return true;
-            case R.id.action_cart:
-                CartViewFragment cartViewFragment = new CartViewFragment();
-                CURRENT_TAG = TAG_SHOPPING_CART;
-                navItemIndex = 7;
-                loadNavigatedFragment(cartViewFragment);
                 return true;
             }
 
@@ -246,52 +263,47 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_home) {
             HomeFragment homeFragment = new HomeFragment();
-            CURRENT_TAG = TAG_HOME;
-            navItemIndex = 0;
-            loadNavigatedFragment(homeFragment);
-        } else if (id == R.id.nav_repair) {
-            RepairFragment repairFragment = new RepairFragment();
-            CURRENT_TAG = TAG_REPAIR;
-            navItemIndex = 1;
-            loadNavigatedFragment(repairFragment);
+            loadNavigatedFragment(homeFragment, TAG_HOME, homeItem);
+        }
+        else if (id == R.id.nav_repair) {
+            mFirebaseUser = mFirebaseAuth.getCurrentUser();
+            if (mFirebaseUser == null){
+                drawer.closeDrawers();
+                startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                return true;
+            }
+            else {
+                RepairFragment repairFragment = new RepairFragment();
+                loadNavigatedFragment(repairFragment, TAG_REPAIR, repairItem);
+            }
         } else if (id == R.id.nav_prices) {
             PricesFragment pricesFragment = new PricesFragment();
-            CURRENT_TAG = TAG_PRICES;
-            navItemIndex = 2;
-            loadNavigatedFragment(pricesFragment);
+            loadNavigatedFragment(pricesFragment, TAG_PRICES, pricesItem);
         } else if (id == R.id.nav_login) {
-            CURRENT_TAG = TAG_LOGIN;
-            navItemIndex = 3;
-            startActivity(new Intent(MainActivity.this, LoginActivity.class));
             drawer.closeDrawers();
-            finish();
+            startActivity(new Intent(MainActivity.this, LoginActivity.class));
             return true;
         } else if (id == R.id.nav_logout) {
-            CURRENT_TAG = TAG_LOGOUT;
             navItemIndex = 4;
             AuthUI.getInstance()
                     .signOut(this)
                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                         public void onComplete(@NonNull Task<Void> task) {
                             // user is now signed out
-                            startActivity(new Intent(MainActivity.this, MainActivity.class));
-                            finish();
+                            Toast.makeText(MainActivity.this, "Successfully logged out", Toast.LENGTH_SHORT).show();
                         }
                     });
 
             drawer.closeDrawers();
-            finish();
             return true;
         } else if (id == R.id.nav_contact_us) {
             ContactFragment contactFragment = new ContactFragment();
-            CURRENT_TAG = TAG_CONTACT;
-            navItemIndex = 5;
-            loadNavigatedFragment(contactFragment);
+            loadNavigatedFragment(contactFragment, TAG_CONTACT, contactUsItem);
         } else if (id == R.id.nav_about) {
             AboutFragment aboutFragment = new AboutFragment();
             CURRENT_TAG = TAG_ABOUT;
             navItemIndex = 6;
-            loadNavigatedFragment(aboutFragment);
+            loadNavigatedFragment(aboutFragment, TAG_ABOUT, aboutItem);
         }
 
         //DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

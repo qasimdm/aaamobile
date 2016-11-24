@@ -82,6 +82,8 @@ public class CartViewFragment extends Fragment {
     public void checkIfCartEmpty(){
         if (cartController.getProductsCount() == 0){
             tvEmptyCart.setVisibility(View.VISIBLE);
+            MainActivity.mNotificationCount = cartController.getProductsCount();
+            getActivity().invalidateOptionsMenu();  //update Actionbar
         }
         updateTotalPrice();
     }

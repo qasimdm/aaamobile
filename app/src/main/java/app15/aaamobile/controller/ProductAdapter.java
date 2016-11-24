@@ -15,6 +15,7 @@ import java.util.List;
 import app15.aaamobile.R;
 import app15.aaamobile.model.Product;
 import app15.aaamobile.view.CartViewFragment;
+import app15.aaamobile.view.MainActivity;
 
 /**
  * Created by umyhafzaqa on 2016-11-10.
@@ -52,8 +53,12 @@ public class ProductAdapter extends ArrayAdapter<Product> {
             @Override
             public void onClick(View view) {
                 Toast.makeText(getContext(), "Deleted.", Toast.LENGTH_SHORT).show();
-                cartController.myProducts.remove(position);
+                if (cartController.getProductsCount() > 0) {
+                    cartController.myProducts.remove(position);
+                    MainActivity.mNotificationCount = cartController.getProductsCount();
+                }
                 notifyDataSetChanged();
+                ((MainActivity)getContext()).invalidateOptionsMenu();
                 cartObject.checkIfCartEmpty();
             }
         });

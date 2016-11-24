@@ -1,31 +1,23 @@
+/**
+ * A login screen that offers login via email/password, Gmail and register a new account.
+ */
 package app15.aaamobile.view;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.app.LoaderManager.LoaderCallbacks;
-import android.content.ContentResolver;
-import android.content.CursorLoader;
-import android.content.Loader;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build.VERSION;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
-import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -51,17 +43,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import app15.aaamobile.R;
 import app15.aaamobile.model.User;
 
-import static android.Manifest.permission.READ_CONTACTS;
-
-/**
- * A login screen that offers login via email/password, Gmail and register a new account.
- */
 public class LoginActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener { //LoaderCallbacks<Cursor>,
 
     private static final String TAG = "LoginActivity";
@@ -187,7 +171,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
+        showProgress(true);
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
@@ -198,6 +182,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 //account.getDisplayName(); account.getEmail();
                 firebaseAuthWithGoogle(account);
             } else {
+                showProgress(false);
                 // Google Sign In failed
                 Log.e(TAG, "Google Sign In failed.");
                 Toast.makeText(this, "Google Sign In failed", Toast.LENGTH_SHORT).show();
@@ -219,6 +204,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                         // the auth state listener will be notified and logic to handle the
                         // signed in user can be handled in the listener.
                         if (!task.isSuccessful()) {
+                            showProgress(false);
                             Log.w(TAG, "signInWithCredential", task.getException());
                             Toast.makeText(LoginActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
@@ -266,7 +252,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                         // If sign in succeeds, the auth state listener will be notified and logic to handle the
                         // signed in user can be handled in the listener.
 
-                        showProgress(false);
+                        //showProgress(false);
                     }
                 });
     }//END createAccount
@@ -346,14 +332,33 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         } else {
             // Show a progress spinner
             showProgress(true);
-            //Otherwise kick off a background task to
-            // perform the user login attempt.
+            //kick off a background task to perform the user login attempt.
             mAuthTask = new UserLoginTask(email, password);
             mAuthTask.execute((Void) null);
             //}
         }
     }
 
+    /*
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event)  {
+        if ( VERSION.SDK_INT > 5
+                && keyCode == KeyEvent.KEYCODE_BACK
+                && event.getRepeatCount() == 0) {
+            Log.d(TAG, "onKeyDown Called");
+            onBackPressed();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+    @Override
+    public void onBackPressed(){
+        super.onBackPressed();
+        Log.d(TAG, "onBackPressed Called");
+        startActivity(new Intent(LoginActivity.this, MainActivity.class));
+        finish();
+    }
+*/
     // Shows the progress UI and hides the login form.
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     private void showProgress(final boolean show) {
@@ -433,8 +438,8 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             Log.d(TAG, "signInWithEmail:onComplete:" + task.isSuccessful());
 
-                            // If sign in fails, display a message to the user. If sign in succeeds
-                            // the auth state listener will be notified and logic to handle the
+                            // If sign in fails, display a message to the user.
+                            // If sign in succeeds the auth state listener will be notified and logic to handle the
                             // signed in user can be handled in the listener.
                             if (!task.isSuccessful()) {
                                 Log.w(TAG, "signInWithEmail:failed", task.getException());
@@ -444,7 +449,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                                 startActivity(new Intent(LoginActivity.this, MainActivity.class));
                                 finish();
                             }
-                            //hideProgressDialog();
+                            //showProgress(false);
                         }
                     });
             // END sign_in_with_email
@@ -453,7 +458,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         @Override
         protected void onPostExecute(final Boolean success) {
             mAuthTask = null;
-            showProgress(false);
+            //showProgress(false);
 
             if (success) {
                 //finish();

@@ -96,13 +96,15 @@ public class RepairFragment extends Fragment implements AdapterView.OnItemSelect
                 String model = spinnerModel.getSelectedItem().toString();
                 String problem = spinnerProblem.getSelectedItemsAsString();
                 Log.i("TAG", "value of problem" + problem);
-                if ( (model != SELECT_MODEL) && ((problem != SELECT_PROBLEM) && (problem != "") && (problem != null) )) {
-                    Product order = new Product(make + model, problem, 100);
-                    cartController.myProducts.add(order);
-                    Toast.makeText(getContext(), "Order added successfully to the cart", Toast.LENGTH_SHORT).show();
+                if ( (model.equals(SELECT_MODEL)) || ((problem.equals(SELECT_PROBLEM)) || (problem.equals("")) || (problem.equals(null)) )) {
+                    Toast.makeText(getContext(), "Order not added to the cart. Select the required fields first.", Toast.LENGTH_SHORT ).show();
                 }
                 else{
-                    Toast.makeText(getContext(), "Order not added to the cart. Select the required fields first.", Toast.LENGTH_SHORT ).show();
+                    Product order = new Product(make + model, problem, 100);
+                    cartController.myProducts.add(order);
+                    MainActivity.mNotificationCount = cartController.getProductsCount();
+                    getActivity().invalidateOptionsMenu();
+                    Toast.makeText(getContext(), "Order added successfully to the cart", Toast.LENGTH_SHORT).show();
                 }
             }
         });
