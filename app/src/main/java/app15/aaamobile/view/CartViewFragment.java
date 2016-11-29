@@ -52,7 +52,7 @@ public class CartViewFragment extends Fragment {
         ProductAdapter adapterLVCartItems = new ProductAdapter(getContext(), android.R.layout.simple_list_item_1, cartController.myProducts, this);
         lvCartItems.setAdapter(adapterLVCartItems);
         tvTotalPrice.setText(""+ cartController.getTotalPrice());
-
+        //Redirects to the payment page if there is atleast 1 item in the cart
         btnShop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -66,6 +66,7 @@ public class CartViewFragment extends Fragment {
                 }*/     //Uncomment after paypal integration
             }
         });
+        //Removes all items from the cart
         btnClearCart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

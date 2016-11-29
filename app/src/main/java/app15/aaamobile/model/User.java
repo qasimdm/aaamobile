@@ -1,5 +1,8 @@
 package app15.aaamobile.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by umyhafzaqa on 2016-11-07.
  */
@@ -10,6 +13,7 @@ public class User {
     private String name;
     private String password;
     private boolean isAdmin;
+    private List<Order> orderList = new ArrayList<>();
 
     public User(){
     }

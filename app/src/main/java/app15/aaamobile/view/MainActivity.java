@@ -59,6 +59,7 @@ public class MainActivity extends AppCompatActivity
     //Cart item counter
     public static int mNotificationCount = 0;
     private static int navItemIndex = 0;
+    boolean doubleBackToExitPressedOnce = false;
 
     // toolbar titles respected to selected nav menu item
     private String[] activityTitles;
@@ -119,7 +120,8 @@ public class MainActivity extends AppCompatActivity
                 // update the main content by replacing fragments
                 //Fragment currentFragment = fragment;
                 FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                fragmentTransaction.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out);
+                //fragmentTransaction.setCustomAnimations(android.R.anim.slide_out_right, android.R.anim.slide_out_right);
+                //fragmentTransaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right, android.R.anim.slide_in_left, android.R.anim.slide_out_right);
                 fragmentTransaction.replace(R.id.frame, fragment, CURRENT_TAG);
                 fragmentTransaction.commitAllowingStateLoss();
             }
@@ -177,14 +179,28 @@ public class MainActivity extends AppCompatActivity
         setToolbarTitle();
         invalidateOptionsMenu();    //re draw the action toolbar
     }
-
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
+        }
+        else {  //Double click to close
+            if (doubleBackToExitPressedOnce) {
+                super.onBackPressed();
+                return;
+            }
+            this.doubleBackToExitPressedOnce = true;
+            Toast.makeText(this, "Please press BACK again to exit", Toast.LENGTH_SHORT).show();
+
+            new Handler().postDelayed(new Runnable() {
+
+                @Override
+                public void run() {
+                    doubleBackToExitPressedOnce=false;
+                }
+            }, 2000);
+            //super.onBackPressed();
         }
     }
 

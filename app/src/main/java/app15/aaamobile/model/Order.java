@@ -5,6 +5,7 @@ package app15.aaamobile.model;
  */
 public class Order {
     private String orderId;
+    private String orderTitle;
     private String orderDescription;
     private boolean done;
 
@@ -14,6 +15,13 @@ public class Order {
         this.orderId = orderId;
         this.orderDescription = orderDescription;
         this.done = done;
+    }
+    public String getOrderTitle() {
+        return orderTitle;
+    }
+
+    public void setOrderTitle(String orderTitle) {
+        this.orderTitle = orderTitle;
     }
     public String getOrderId() {
         return orderId;

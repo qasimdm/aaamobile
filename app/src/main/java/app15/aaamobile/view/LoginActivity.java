@@ -138,7 +138,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     private void setupDatabaseAndEventListener() {
         database = FirebaseDatabase.getInstance();
         databaseReference = database.getReference().child("users");
-        databaseReference.child("users").addValueEventListener(new ValueEventListener() {
+        databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 //This method is called once with initial value
@@ -430,6 +430,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                             // If sign in succeeds the auth state listener will be notified and logic to handle the
                             // signed in user can be handled in the listener.
                             if (!task.isSuccessful()) {
+                                showProgress(false);
                                 Log.w(TAG, "signInWithEmail:failed", task.getException());
                                 Toast.makeText(LoginActivity.this, "Authentication failed!",
                                         Toast.LENGTH_SHORT).show();
