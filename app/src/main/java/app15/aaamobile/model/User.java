@@ -14,11 +14,12 @@ public class User {
     public User(){
     }
 
-    public User(String uid, String email, String name, String password){
+    public User(String uid, String email, String name, String password, boolean isAdmin){
         this.uid = uid;
         this.email = email;
         this.name = name;
         this.password = password;
+        this.isAdmin = isAdmin;
     }
     public String getUid() {
         return uid;
@@ -51,5 +52,7 @@ public class User {
     public void setPassword(String password) {
         this.password = password;
     }
-
+    public boolean isAdmin() {
+        return isAdmin;
+    }
 }

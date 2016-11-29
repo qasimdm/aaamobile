@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity
     private final String TAG_HOME = "home";
     private final String TAG_REPAIR = "repair";
     private final String TAG_PRICES = "prices";
+    private final String TAG_MY_ACCOUNT = "my account";
     private final String TAG_LOGOUT = "logout";
     private final String TAG_CONTACT = "contact";
     private final String TAG_ABOUT = "about";
@@ -49,13 +50,13 @@ public class MainActivity extends AppCompatActivity
     private final int homeItem = 0;
     private final int repairItem = 1;
     private final int pricesItem = 2;
-    //private final int loginItem = 3;
+    private final int accountItem = 3;
     //private final int logoutItem = 4;
     private final int contactUsItem = 5;
     private final int aboutItem = 6;
     private final int cartItem = 7;
 
-    //static TextView tvNotificationCount;
+    //Cart item counter
     public static int mNotificationCount = 0;
     private static int navItemIndex = 0;
 
@@ -145,6 +146,7 @@ public class MainActivity extends AppCompatActivity
         Menu menu = navigationView.getMenu();
         MenuItem menuItemLogin = menu.findItem(R.id.nav_login);
         MenuItem menuItemLogout = menu.findItem(R.id.nav_logout);
+        MenuItem menuItemMyAccount = menu.findItem(R.id.nav_my_account);
         View headerView = navigationView.getHeaderView(0);
         TextView navHeaderUserEmail = (TextView) headerView.findViewById(R.id.nav_header_email);
 
@@ -152,6 +154,7 @@ public class MainActivity extends AppCompatActivity
             // Not signed in
             menuItemLogin.setVisible(true);
             menuItemLogout.setVisible(false);
+            menuItemMyAccount.setVisible(false);
             navHeaderUserEmail.setText("Guest");
             loadNavigatedFragment(new HomeFragment(), TAG_HOME, homeItem);  //Load default Home fragment
             CartController cartController = new CartController();
@@ -160,6 +163,8 @@ public class MainActivity extends AppCompatActivity
         } else {
             menuItemLogin.setVisible(false);
             menuItemLogout.setVisible(true);
+            menuItemMyAccount.setVisible(true);
+
             if (mFirebaseUser.getEmail().toString() != null) {
                 navHeaderUserEmail.setText(mFirebaseUser.getEmail().toString());
             }
@@ -276,15 +281,21 @@ public class MainActivity extends AppCompatActivity
                 RepairFragment repairFragment = new RepairFragment();
                 loadNavigatedFragment(repairFragment, TAG_REPAIR, repairItem);
             }
-        } else if (id == R.id.nav_prices) {
+        }
+        else if (id == R.id.nav_prices) {
             PricesFragment pricesFragment = new PricesFragment();
             loadNavigatedFragment(pricesFragment, TAG_PRICES, pricesItem);
-        } else if (id == R.id.nav_login) {
+        }
+        else if (id == R.id.nav_my_account){
+            MyAccountFragment myAccountFragment = new MyAccountFragment();
+            loadNavigatedFragment(myAccountFragment, TAG_MY_ACCOUNT, accountItem);
+        }
+        else if (id == R.id.nav_login) {
             drawer.closeDrawers();
             startActivity(new Intent(MainActivity.this, LoginActivity.class));
             return true;
         } else if (id == R.id.nav_logout) {
-            navItemIndex = 4;
+            //navItemIndex = 4;
             AuthUI.getInstance()
                     .signOut(this)
                     .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -301,8 +312,8 @@ public class MainActivity extends AppCompatActivity
             loadNavigatedFragment(contactFragment, TAG_CONTACT, contactUsItem);
         } else if (id == R.id.nav_about) {
             AboutFragment aboutFragment = new AboutFragment();
-            CURRENT_TAG = TAG_ABOUT;
-            navItemIndex = 6;
+            //CURRENT_TAG = TAG_ABOUT;
+            //navItemIndex = 6;
             loadNavigatedFragment(aboutFragment, TAG_ABOUT, aboutItem);
         }
 

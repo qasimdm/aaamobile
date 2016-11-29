@@ -265,7 +265,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         if (name == null) {
             name = "";
         }
-        User createUser = new User(uid, email, name, password);
+        User createUser = new User(uid, email, name, password, false);
         databaseReference.child(uid).setValue(createUser);
     }
 
@@ -338,19 +338,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             //}
         }
     }
-
     /*
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event)  {
-        if ( VERSION.SDK_INT > 5
-                && keyCode == KeyEvent.KEYCODE_BACK
-                && event.getRepeatCount() == 0) {
-            Log.d(TAG, "onKeyDown Called");
-            onBackPressed();
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
-    }
     @Override
     public void onBackPressed(){
         super.onBackPressed();

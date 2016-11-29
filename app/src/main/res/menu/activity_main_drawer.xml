@@ -15,6 +15,16 @@
             android:icon="@drawable/ic_menu_price_24dp"
             android:title="Prices" />
         <item
+            android:id="@+id/nav_my_account"
+            android:icon="@drawable/ic_menu_price_24dp"
+            android:title="My Account"
+            android:visible="false"/>
+        <item
+            android:id="@+id/nav_orders"
+            android:icon="@drawable/ic_menu_price_24dp"
+            android:title="Orders"
+            android:visible="false"/>
+        <item
             android:id="@+id/nav_login"
             android:icon="@drawable/ic_menu_login_24dp"
             android:title="Login" />
