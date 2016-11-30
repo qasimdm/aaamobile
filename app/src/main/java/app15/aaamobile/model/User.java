@@ -22,8 +22,8 @@ public class User {
         this.uid = uid;
         this.email = email;
         this.name = name;
-        this.password = password;
         this.isAdmin = isAdmin;
+        this.password = password;
     }
     public String getUid() {
         return uid;
@@ -48,11 +48,9 @@ public class User {
     public void setName(String name) {
         this.name = name;
     }
-
-    public String getPassword() {
-        return password;
+    public String getPassword(){
+        return this.password;
     }
-
     public void setPassword(String password) {
         this.password = password;
     }

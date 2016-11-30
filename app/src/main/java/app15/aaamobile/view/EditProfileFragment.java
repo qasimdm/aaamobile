@@ -22,6 +22,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import app15.aaamobile.R;
+import app15.aaamobile.controller.DatabaseController;
 import app15.aaamobile.model.User;
 
 /**
@@ -66,8 +67,10 @@ public class EditProfileFragment extends DialogFragment {
             public void onClick(View view) {
                 if (validateFields()){
                     FirebaseAuth auth = FirebaseAuth.getInstance();
-                    databaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(auth.getCurrentUser().getUid());
                     FirebaseUser mUser = auth.getCurrentUser();
+                    String key = mUser.getUid();
+                    //DatabaseController databaseController = new DatabaseController();
+                    databaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(key);
                     mUser.updatePassword(newPassword).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
@@ -111,7 +114,7 @@ public class EditProfileFragment extends DialogFragment {
             else{   //if the User name field is not empty
                 username = tvUsername.getText().toString();
             }
-
+            // TODO: 2016-11-30 user wants to set the name, not password,
         }
         //Password field is neither empty and valid
         if (TextUtils.isEmpty(currentPassword) || !isPasswordValid(currentPassword)) {

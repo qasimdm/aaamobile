@@ -37,14 +37,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-
 import app15.aaamobile.R;
-import app15.aaamobile.model.User;
+import app15.aaamobile.controller.DatabaseController;
 
 public class LoginActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener { //LoaderCallbacks<Cursor>,
 
@@ -64,9 +58,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     private GoogleApiClient mGoogleApiClient;
     // Firebase instance variables
     private FirebaseAuth mFirebaseAuth;
-    private FirebaseAuth.AuthStateListener mAuthListener;
-    private FirebaseDatabase database;
-    private DatabaseReference databaseReference;
+    DatabaseController databaseController;
 
 
     @Override
@@ -136,28 +128,10 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     }
     //Firebase database setup and setting an EventListener on it
     private void setupDatabaseAndEventListener() {
-        database = FirebaseDatabase.getInstance();
-        databaseReference = database.getReference().child("users");
-        databaseReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                //This method is called once with initial value
-                // and when data at this location is updated
-                User user = dataSnapshot.getValue(User.class);
-                if (user == null) {
-                    //User is null, error out
-                    Log.e(TAG, "User object is null");
-                } else {
-
-                }
-                //Log.i(TAG, "Value is: " + user.toString());
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                //Failed to read the value
-                Log.i(TAG, "Failed to read value. ", databaseError.toException());
-            }
-        });
+        //String key = mFirebaseAuth.getCurrentUser().getUid();
+        databaseController = new DatabaseController();
+        databaseController.initDatabaseReference("users");
+        //databaseController.readData(key);
     }
 
     //Step 1. Sign in with google, starts an intent for login google view
@@ -226,7 +200,8 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     }//END fireBaseAuthWithGoogle
 
     //Create new account using Email and Password
-    private void createAccount(final String email, final String password) {
+    private void createAccount(final String email, String pass) {
+        final String password = pass;
         Log.i(TAG, "createAccount: Email = " + email);
         if (!validateForm()) {
             return;
@@ -244,6 +219,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                         // If sign in fails, display a message to the user.
                         if (task.isSuccessful()) {
                             writeFirebaseDatabase(password);
+
                             attemptLogin();
                         } else {
                             Toast.makeText(LoginActivity.this, "Authentication failed!",
@@ -259,14 +235,14 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     //end createUserWithEmailAndPassword
     private void writeFirebaseDatabase(String password) {
+        Log.i(TAG, "User password: " + password);
         String uid = mFirebaseAuth.getCurrentUser().getUid();
         String email = mFirebaseAuth.getCurrentUser().getEmail();
         String name = mFirebaseAuth.getCurrentUser().getDisplayName();
         if (name == null) {
             name = "";
         }
-        User createUser = new User(uid, email, name, password, false);
-        databaseReference.child(uid).setValue(createUser);
+        databaseController.writeUserData(uid, email, name, password, false);
     }
 
     // Set up the {@link android.app.ActionBar}, if the API is available.

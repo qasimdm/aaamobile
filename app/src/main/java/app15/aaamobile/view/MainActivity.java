@@ -29,9 +29,16 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import app15.aaamobile.R;
 import app15.aaamobile.controller.CartController;
+import app15.aaamobile.controller.DatabaseController;
+import app15.aaamobile.model.User;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -64,6 +71,7 @@ public class MainActivity extends AppCompatActivity
     // toolbar titles respected to selected nav menu item
     private String[] activityTitles;
 
+    public static User user;
     private Handler mHandler;
     // Firebase instance variables
     private FirebaseAuth mFirebaseAuth;
@@ -83,7 +91,7 @@ public class MainActivity extends AppCompatActivity
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
+        drawer.setDrawerListener(toggle);   // TODO: 2016-11-30 change to addDrawerListener
         toggle.syncState();
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -91,7 +99,7 @@ public class MainActivity extends AppCompatActivity
         //Default fragment is HomeFragment when user starts the app
         mHandler = new Handler();
         activityTitles = getResources().getStringArray(R.array.nav_item_activity_titles);
-        Log.i(TAG, "Current tag: "+CURRENT_TAG + " and navItemIndex: "+ navItemIndex);
+
         loadNavigatedFragment(new HomeFragment(), CURRENT_TAG, homeItem);   //Opens home fragment everytime user closes and then resumes the app
 
         // Firebase Authentication state listener
@@ -103,6 +111,7 @@ public class MainActivity extends AppCompatActivity
         };
         //Initilize firebase and check if the user is signed in otherwise welcome Guest
         initFirebaseAndCheckIfSignedIn();
+        setupDatabase();
     }
     private void loadNavigatedFragment(final Fragment fragment, String fragmentTag, int currentItemIndex) {
         CURRENT_TAG = fragmentTag;
@@ -178,6 +187,25 @@ public class MainActivity extends AppCompatActivity
         }
         setToolbarTitle();
         invalidateOptionsMenu();    //re draw the action toolbar
+    }
+    private void setupDatabase(){
+        if (mFirebaseUser != null) {
+            DatabaseController databaseController = new DatabaseController();
+            databaseController.initDatabaseReference("users");
+            databaseController.readOnce(mFirebaseUser.getUid());
+        }
+        /*Runnable firebaseDatabaseRead = new Runnable() {
+            @Override
+            public void run() {
+                DatabaseController databaseController = new DatabaseController();
+            databaseController.initDatabaseReference("users");
+            databaseController.readOnce(mFirebaseUser.getUid());
+            }
+        };
+        // If firebaseDatabaseRead is not null, then add to the message queue
+        if (firebaseDatabaseRead != null) {
+            mHandler.post(firebaseDatabaseRead);
+        }*/
     }
     @Override
     public void onBackPressed() {
