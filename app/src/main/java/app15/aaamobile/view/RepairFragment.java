@@ -137,7 +137,6 @@ public class RepairFragment extends Fragment implements AdapterView.OnItemSelect
             case R.id.spinnerMake:
                 item = adapterView.getItemAtPosition(position).toString();
                 if (item.equals("Select Make")){
-                    Toast.makeText(adapterView.getContext(), item + " selected", Toast.LENGTH_SHORT).show();
                     model.clear();
                     problem.clear();
                     model.add(SELECT_MODEL);

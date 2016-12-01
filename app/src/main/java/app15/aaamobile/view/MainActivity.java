@@ -8,7 +8,6 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.MenuInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -29,16 +28,10 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import app15.aaamobile.R;
 import app15.aaamobile.controller.CartController;
 import app15.aaamobile.controller.DatabaseController;
-import app15.aaamobile.model.User;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -48,12 +41,12 @@ public class MainActivity extends AppCompatActivity
     private final String TAG_REPAIR = "repair";
     private final String TAG_PRICES = "prices";
     private final String TAG_MY_ACCOUNT = "my account";
-    private final String TAG_LOGOUT = "logout";
     private final String TAG_CONTACT = "contact";
     private final String TAG_ABOUT = "about";
     private final String TAG_SHOPPING_CART = "shopping cart";
-    public String CURRENT_TAG = TAG_HOME;
+    private String CURRENT_TAG = TAG_HOME;
     private final String TAG = "MainActivity";
+    //Navigation bar items indexing
     private final int homeItem = 0;
     private final int repairItem = 1;
     private final int pricesItem = 2;
@@ -71,9 +64,8 @@ public class MainActivity extends AppCompatActivity
     // toolbar titles respected to selected nav menu item
     private String[] activityTitles;
 
-    public static User user;
     private Handler mHandler;
-    // Firebase instance variables
+    // Firebase member variables
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mFirebaseAuthListener;
     private FirebaseUser mFirebaseUser;
@@ -91,12 +83,12 @@ public class MainActivity extends AppCompatActivity
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);   // TODO: 2016-11-30 change to addDrawerListener
+        drawer.addDrawerListener(toggle);
+        //drawer.setDrawerListener(toggle);   // TODO: 2016-11-30 change to addDrawerListener
         toggle.syncState();
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        //Default fragment is HomeFragment when user starts the app
         mHandler = new Handler();
         activityTitles = getResources().getStringArray(R.array.nav_item_activity_titles);
 
@@ -110,7 +102,7 @@ public class MainActivity extends AppCompatActivity
             }//onAuthStateChanged
         };
         //Initilize firebase and check if the user is signed in otherwise welcome Guest
-        initFirebaseAndCheckIfSignedIn();
+        initFirebaseAndCheckIfSignedIn();   // TODO: 2016-12-01 optimization, comment it 
         setupDatabase();
     }
     private void loadNavigatedFragment(final Fragment fragment, String fragmentTag, int currentItemIndex) {
@@ -191,21 +183,10 @@ public class MainActivity extends AppCompatActivity
     private void setupDatabase(){
         if (mFirebaseUser != null) {
             DatabaseController databaseController = new DatabaseController();
-            databaseController.initDatabaseReference("users");
+            databaseController.setDatabaseReference("users");
             databaseController.readOnce(mFirebaseUser.getUid());
         }
-        /*Runnable firebaseDatabaseRead = new Runnable() {
-            @Override
-            public void run() {
-                DatabaseController databaseController = new DatabaseController();
-            databaseController.initDatabaseReference("users");
-            databaseController.readOnce(mFirebaseUser.getUid());
-            }
-        };
-        // If firebaseDatabaseRead is not null, then add to the message queue
-        if (firebaseDatabaseRead != null) {
-            mHandler.post(firebaseDatabaseRead);
-        }*/
+
     }
     @Override
     public void onBackPressed() {
@@ -279,8 +260,6 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 CartViewFragment cartViewFragment = new CartViewFragment();
-                CURRENT_TAG = TAG_SHOPPING_CART;
-                navItemIndex = 7;
                 loadNavigatedFragment(cartViewFragment, TAG_SHOPPING_CART, cartItem);
             }
         });
@@ -356,12 +335,9 @@ public class MainActivity extends AppCompatActivity
             loadNavigatedFragment(contactFragment, TAG_CONTACT, contactUsItem);
         } else if (id == R.id.nav_about) {
             AboutFragment aboutFragment = new AboutFragment();
-            //CURRENT_TAG = TAG_ABOUT;
-            //navItemIndex = 6;
             loadNavigatedFragment(aboutFragment, TAG_ABOUT, aboutItem);
         }
 
-        //DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }

@@ -42,8 +42,8 @@ import app15.aaamobile.controller.DatabaseController;
 
 public class LoginActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener { //LoaderCallbacks<Cursor>,
 
-    private static final String TAG = "LoginActivity";
-    private static final int RC_SIGN_IN = 9001;
+    private final String TAG = "LoginActivity";
+    private final int RC_SIGN_IN = 9001;
 
     //Keep track of the login task to ensure we can cancel it if requested.
     private UserLoginTask mAuthTask = null;
@@ -58,7 +58,8 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     private GoogleApiClient mGoogleApiClient;
     // Firebase instance variables
     private FirebaseAuth mFirebaseAuth;
-    DatabaseController databaseController;
+    //Database handler
+    private DatabaseController databaseController;
 
 
     @Override
@@ -72,10 +73,13 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         mProgressView = findViewById(R.id.login_progress);
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         mPasswordView = (EditText) findViewById(R.id.password);
+        mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
+        com.google.android.gms.common.SignInButton gmailSignInButton = (com.google.android.gms.common.SignInButton) findViewById(R.id.gmail_sign_in_button);
+        mSignUpButton = (Button) findViewById(R.id.sign_up_button);
 
         // Initialize FirebaseAuth
         mFirebaseAuth = FirebaseAuth.getInstance();
-        setupDatabaseAndEventListener();
+        initDatabaseController();
         setupGoogleApiClient();
 
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -88,11 +92,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 return false;
             }
         });
-        //Button Sign in, Google sign in and Sign up button
-        mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
-        com.google.android.gms.common.SignInButton gmailSignInButton = (com.google.android.gms.common.SignInButton) findViewById(R.id.gmail_sign_in_button);
-        mSignUpButton = (Button) findViewById(R.id.sign_up_button);
-
         //Button click listeners
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -122,15 +121,15 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 .requestEmail()
                 .build();
         mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
+                .enableAutoManage(this, this /* OnConnectionFailedListener */)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
     }
-    //Firebase database setup and setting an EventListener on it
-    private void setupDatabaseAndEventListener() {
+    //Initilizing database controller for Firebase database
+    private void initDatabaseController() {
         //String key = mFirebaseAuth.getCurrentUser().getUid();
         databaseController = new DatabaseController();
-        databaseController.initDatabaseReference("users");
+        databaseController.setDatabaseReference("users");
         //databaseController.readData(key);
     }
 
@@ -150,46 +149,37 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         if (requestCode == RC_SIGN_IN) {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
             if (result.isSuccess()) {
-                Log.i(TAG, "Google sign in successfull");
-                // Google Sign In was successful, authenticate with Firebase
+                // Google Sign-in was successful, authenticate with Firebase
                 GoogleSignInAccount account = result.getSignInAccount();
-                //account.getDisplayName(); account.getEmail();
                 firebaseAuthWithGoogle(account);
             } else {
                 showProgress(false);
                 // Google Sign In failed
-                Log.e(TAG, "Google Sign In failed.");
                 Toast.makeText(this, "Google Sign In failed", Toast.LENGTH_SHORT).show();
             }
         }
     }
 
-    //Step 3. Google authenticate with firebase, if success then saves the credentials in the database
+    //Step 3. Google authentication with firebase, if success then saves the credentials in the database
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
-        Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
         final AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
         mFirebaseAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         Log.d(TAG, "signInWithCredential:onComplete:" + task.isSuccessful());
-
-                        // If sign in fails, display a message to the user. If sign in succeeds
-                        // the auth state listener will be notified and logic to handle the
-                        // signed in user can be handled in the listener.
+                        // If sign in fails, display a message to the user.
                         if (!task.isSuccessful()) {
                             showProgress(false);
                             Log.w(TAG, "signInWithCredential", task.getException());
-                            Toast.makeText(LoginActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
+                            Toast.makeText(LoginActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
                         }
-                        //After user has logged in
+                        //If sign in succeeds, the auth state listener will be notified
                         else {
                             //save in the database
-                            writeFirebaseDatabase("");
-
+                            writeToFirebaseDatabase("");    //"" = no password, as we can not access user's google account password
+                            //Welcome user, and start main activity
                             FirebaseUser user = mFirebaseAuth.getCurrentUser();
-                            Log.i(TAG, "CurrentUser " + user + " and email id: " + user.getEmail());
                             Toast.makeText(LoginActivity.this, "Welcome " + user.getEmail(), Toast.LENGTH_LONG).show();
                             startActivity(new Intent(LoginActivity.this, MainActivity.class));
                             finish();
@@ -200,42 +190,28 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     }//END fireBaseAuthWithGoogle
 
     //Create new account using Email and Password
-    private void createAccount(final String email, String pass) {
-        final String password = pass;
-        Log.i(TAG, "createAccount: Email = " + email);
+    private void createAccount(final String email, final String password) {
         if (!validateForm()) {
             return;
         }
-
-        showProgress(true);
-        // create user with email
+        showProgress(true);     //Show a progressbar until a new user account created
         mFirebaseAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        Log.i(TAG, "createUserWithEmail:onComplete:" + task.isSuccessful());
-
-
                         // If sign in fails, display a message to the user.
                         if (task.isSuccessful()) {
-                            writeFirebaseDatabase(password);
-
+                            writeToFirebaseDatabase(password);
                             attemptLogin();
                         } else {
-                            Toast.makeText(LoginActivity.this, "Authentication failed!",
-                                    Toast.LENGTH_SHORT).show();
+                            Toast.makeText(LoginActivity.this, "Authentication failed!", Toast.LENGTH_SHORT).show();
                         }
-                        // If sign in succeeds, the auth state listener will be notified and logic to handle the
-                        // signed in user can be handled in the listener.
-
-                        //showProgress(false);
                     }
                 });
     }//END createAccount
 
     //end createUserWithEmailAndPassword
-    private void writeFirebaseDatabase(String password) {
-        Log.i(TAG, "User password: " + password);
+    private void writeToFirebaseDatabase(String password) {
         String uid = mFirebaseAuth.getCurrentUser().getUid();
         String email = mFirebaseAuth.getCurrentUser().getEmail();
         String name = mFirebaseAuth.getCurrentUser().getDisplayName();
@@ -314,15 +290,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             //}
         }
     }
-    /*
-    @Override
-    public void onBackPressed(){
-        super.onBackPressed();
-        Log.d(TAG, "onBackPressed Called");
-        startActivity(new Intent(LoginActivity.this, MainActivity.class));
-        finish();
-    }
-*/
+
     // Shows the progress UI and hides the login form.
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     private void showProgress(final boolean show) {
@@ -379,19 +347,13 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            /*try {
-                //simulate network delay
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                return false;
-            }*/
+            //Thread.sleep(1000);
             signIn(mEmail, mPassword);
             return true;
         }
 
         //sign in with existing account
         private void signIn(String email, String password) {
-            Log.d(TAG, "signIn:" + email);
             if (!validateForm()) {
                 return;
             }
@@ -401,16 +363,15 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             Log.d(TAG, "signInWithEmail:onComplete:" + task.isSuccessful());
-
                             // If sign in fails, display a message to the user.
-                            // If sign in succeeds the auth state listener will be notified and logic to handle the
-                            // signed in user can be handled in the listener.
                             if (!task.isSuccessful()) {
                                 showProgress(false);
                                 Log.w(TAG, "signInWithEmail:failed", task.getException());
-                                Toast.makeText(LoginActivity.this, "Authentication failed!",
-                                        Toast.LENGTH_SHORT).show();
-                            } else {
+                                Toast.makeText(LoginActivity.this, "Authentication failed!", Toast.LENGTH_SHORT).show();
+                            }
+                            // If sign in succeeds the auth state listener will be notified and logic to handle the
+                            // signed in user can be handled in the listener.
+                            else {
                                 startActivity(new Intent(LoginActivity.this, MainActivity.class));
                                 finish();
                             }

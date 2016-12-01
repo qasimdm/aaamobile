@@ -1,11 +1,14 @@
 package app15.aaamobile.view;
 
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,8 +19,11 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -30,21 +36,31 @@ import app15.aaamobile.model.User;
  */
 public class EditProfileFragment extends DialogFragment {
 
-    DatabaseReference databaseReference;
-    AutoCompleteTextView tvUsername;
-    EditText etCurrentPassword, etNewPassword;
-    boolean ifUsernameNull = true;
-    String username, newPassword;
+    private DialogInterface.OnDismissListener onDismissListener;
+    private DatabaseController databaseController;
+    Context context;
+    //Firebase
+    FirebaseUser mCurrentUser;
+
+
+    private AutoCompleteTextView tvUsername;
+    private EditText etCurrentPassword, etNewPassword;
+    private boolean ifUsernameNull = true;
+    private String username, newPassword;
+
     public EditProfileFragment() {
         // Required empty public constructor
     }
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_edit_profile, container, false);
+        mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
+        context = getContext();
+        databaseController = new DatabaseController();  //get a reference to the database
         getDialog().setTitle("Edit Profile");
         username = getTag();
         tvUsername = (AutoCompleteTextView)view.findViewById(R.id.edit_profile_username);
@@ -66,26 +82,27 @@ public class EditProfileFragment extends DialogFragment {
             @Override
             public void onClick(View view) {
                 if (validateFields()){
-                    FirebaseAuth auth = FirebaseAuth.getInstance();
-                    FirebaseUser mUser = auth.getCurrentUser();
-                    String key = mUser.getUid();
-                    //DatabaseController databaseController = new DatabaseController();
-                    databaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(key);
-                    mUser.updatePassword(newPassword).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if(task.isSuccessful()){
-                                if (!username.equals("")) {
-                                    databaseReference.child("name").setValue(username);
+                    String key = mCurrentUser.getUid();
+                    databaseController.setDatabaseReference("users", key);
+
+                    if (!username.equals("")) {
+                        databaseController.writeSingleItem("name", username);
+                        databaseController.user.setName(username);
+                        UserProfileChangeRequest profileChangeRequest = new UserProfileChangeRequest.Builder()
+                                .setDisplayName(username).build();
+                        mCurrentUser.updateProfile(profileChangeRequest).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()){
+                                    //Toast.makeText(context, "Display name changed successfully", Toast.LENGTH_SHORT).show();
                                 }
-                                databaseReference.child("password").setValue(etNewPassword.getText().toString());
                             }
-                            else{
+                        });
 
-                            }
-                        }
-                    });
-
+                    }
+                    if (!TextUtils.isEmpty(newPassword) && !TextUtils.isEmpty(etCurrentPassword.getText().toString())) {    //if user don't want to update password but just Display name
+                        changePassword(etCurrentPassword.getText().toString());
+                    }
                     dismiss();
                 }
             }
@@ -97,6 +114,7 @@ public class EditProfileFragment extends DialogFragment {
         boolean valid = true;
         View focusView = null;
 
+        String displayName = tvUsername.getText().toString();
         String currentPassword = etCurrentPassword.getText().toString();
         newPassword = etNewPassword.getText().toString();
 
@@ -106,15 +124,17 @@ public class EditProfileFragment extends DialogFragment {
         etNewPassword.setError(null);
 
         if (ifUsernameNull) { //if user haven't set a display name already
-            if (TextUtils.isEmpty(tvUsername.getText().toString())) {
+            if (TextUtils.isEmpty(displayName)) {
                 tvUsername.setError(getString(R.string.error_field_required));
                 focusView = tvUsername;
                 valid = false;
             }
             else{   //if the User name field is not empty
                 username = tvUsername.getText().toString();
+                if (TextUtils.isEmpty(currentPassword) && TextUtils.isEmpty(newPassword)){
+                    return valid;
+                }
             }
-            // TODO: 2016-11-30 user wants to set the name, not password,
         }
         //Password field is neither empty and valid
         if (TextUtils.isEmpty(currentPassword) || !isPasswordValid(currentPassword)) {
@@ -143,5 +163,48 @@ public class EditProfileFragment extends DialogFragment {
         return password.length() > 5;
     }
 
+    //authenticates the current password first and then changes the password.
+    private void changePassword(String currentPassword){
+        AuthCredential credential = EmailAuthProvider.getCredential(mCurrentUser.getEmail(), currentPassword);
+        mCurrentUser.reauthenticate(credential).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    mCurrentUser.updatePassword(newPassword).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if(task.isSuccessful()){
+                                Log.i("TAG", "Password changed successfully");
+                                Toast.makeText(context, "Password changed successfully", Toast.LENGTH_SHORT).show();
+                                databaseController.writeSingleItem("password", etNewPassword.getText().toString());
+                            }
+                            else{
+                                Log.i("TAG", "Failed to changed the password");
+                                Toast.makeText(context, "Failed to changed the password", Toast.LENGTH_SHORT).show();
+                            }
+
+                        }
+                    });
+                }
+                else{
+                    Log.i("TAG", "Authentication failed, Please try again");
+                    Toast.makeText(context, "Authentication failed, Please try again", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
+
+    }
+    //Listens for onDismiss, to update the Display name in MyAccountFragment,
+    public void setOnDismissListener(DialogInterface.OnDismissListener onDismissListener){
+        this.onDismissListener = onDismissListener;
+    }
+    @Override
+    public void onDismiss(DialogInterface dialogInterface){
+        super.onDismiss(dialogInterface);
+        if (onDismissListener != null){
+            onDismissListener.onDismiss(dialogInterface);
+        }
+    }
 
 }

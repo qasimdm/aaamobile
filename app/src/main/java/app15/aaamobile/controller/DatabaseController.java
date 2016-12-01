@@ -15,16 +15,20 @@ import app15.aaamobile.model.User;
  */
 public class DatabaseController {
     FirebaseDatabase db;
-    DatabaseReference dbRef;
+    public DatabaseReference dbRef;
     public static User user = new User();   //for stability, initilizing User()
 
     public DatabaseController(){
         db = FirebaseDatabase.getInstance();
        // dbRef = db.getReference();
     }
-    public void initDatabaseReference(String child){
+    public void setDatabaseReference(String child){
         dbRef = db.getReference().child(child);
     }
+    public void setDatabaseReference(String child1, String child2){
+        dbRef = db.getReference().child(child1).child(child2);
+    }
+
     public void readData(String key){
         Log.i("in DatabaseController", dbRef.toString());
         dbRef.child(key).addValueEventListener(new ValueEventListener() {
@@ -56,9 +60,12 @@ public class DatabaseController {
             }
         });
     }
-    public void writeUserData(String uid, String email, String name, String password, boolean ifAdmin){
-        User createUser = new User(uid, email, name, password, ifAdmin);
+    public void writeUserData(String child, String email, String name, String password, boolean ifAdmin){
+        User createUser = new User(child, email, name, password, ifAdmin);
         Log.i("In Database Controller", "User password: " + password);
-        dbRef.child(uid).setValue(createUser);
+        dbRef.child(child).setValue(createUser);
+    }
+    public void writeSingleItem(String fieldName, String value){
+        dbRef.child(fieldName).setValue(value);
     }
 }

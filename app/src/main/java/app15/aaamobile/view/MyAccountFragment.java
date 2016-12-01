@@ -1,6 +1,7 @@
 package app15.aaamobile.view;
 
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -23,9 +24,10 @@ import app15.aaamobile.controller.DatabaseController;
  */
 public class MyAccountFragment extends Fragment {
 
-    FragmentManager fm;
-    FirebaseAuth mAuth;
-    FirebaseUser mUser;
+    private FragmentManager fm;
+    private FirebaseAuth mAuth;
+    private FirebaseUser mUser;
+    private DatabaseController dbController;
 
     TextView tvUsername, tvEmail;
 
@@ -54,15 +56,27 @@ public class MyAccountFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 EditProfileFragment editProfileFragment = new EditProfileFragment();
+                editProfileFragment.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialogInterface) {
+                        if (dbController != null) {
+                            if (dbController.user != null) {
+                                username = dbController.user.getName();     //After setting username first time, set username also, as it's a tag for dialog fragment
+                                tvUsername.setText(username);
+                            }
+                        }
+                    }
+                });
                 editProfileFragment.setStyle(DialogFragment.STYLE_NORMAL, R.style.CustomDialog);    //// TODO: 2016-11-15 fix style, title not visible, problem after Api 23
                 editProfileFragment.show(fm, username);
             }
         });
+
         return view;
     }
     //Firebase database controller reference
     private void getUserInfo() {
-        DatabaseController dbController = new DatabaseController();
+        dbController = new DatabaseController();
         username = dbController.user.getName();
         String userEmail = dbController.user.getEmail();
         if ( username != null ) {
