@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.MenuInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -40,6 +41,7 @@ public class MainActivity extends AppCompatActivity
     private final String TAG_HOME = "home";
     private final String TAG_REPAIR = "repair";
     private final String TAG_PRICES = "prices";
+    private final String TAG_ORDER = "order";
     private final String TAG_MY_ACCOUNT = "my account";
     private final String TAG_CONTACT = "contact";
     private final String TAG_ABOUT = "about";
@@ -51,7 +53,7 @@ public class MainActivity extends AppCompatActivity
     private final int repairItem = 1;
     private final int pricesItem = 2;
     private final int accountItem = 3;
-    //private final int logoutItem = 4;
+    private final int orderItem = 4;
     private final int contactUsItem = 5;
     private final int aboutItem = 6;
     private final int cartItem = 7;
@@ -118,10 +120,9 @@ public class MainActivity extends AppCompatActivity
         Runnable mPendingRunnable = new Runnable() {
             @Override
             public void run() {
-                // update the main content by replacing fragments
-                //Fragment currentFragment = fragment;
+                // updates the contents by replacing fragments
                 FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                //fragmentTransaction.setCustomAnimations(android.R.anim.slide_out_right, android.R.anim.slide_out_right);
+                fragmentTransaction.setCustomAnimations(android.R.anim.slide_out_right, android.R.anim.slide_out_right);
                 //fragmentTransaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right, android.R.anim.slide_in_left, android.R.anim.slide_out_right);
                 fragmentTransaction.replace(R.id.frame, fragment, CURRENT_TAG);
                 fragmentTransaction.commitAllowingStateLoss();
@@ -144,12 +145,13 @@ public class MainActivity extends AppCompatActivity
 
     private void initFirebaseAndCheckIfSignedIn(){
         // Initialize Firebase Auth
-        mFirebaseAuth = FirebaseAuth.getInstance();
+        mFirebaseAuth = FirebaseAuth.getInstance();     // TODO: 2016-12-05 how to check  ifAdmin 
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
         Menu menu = navigationView.getMenu();
         MenuItem menuItemLogin = menu.findItem(R.id.nav_login);
         MenuItem menuItemLogout = menu.findItem(R.id.nav_logout);
         MenuItem menuItemMyAccount = menu.findItem(R.id.nav_my_account);
+        MenuItem menuItemOrders = menu.findItem(R.id.nav_orders);
         View headerView = navigationView.getHeaderView(0);
         TextView navHeaderUserEmail = (TextView) headerView.findViewById(R.id.nav_header_email);
 
@@ -158,6 +160,7 @@ public class MainActivity extends AppCompatActivity
             menuItemLogin.setVisible(true);
             menuItemLogout.setVisible(false);
             menuItemMyAccount.setVisible(false);
+            menuItemOrders.setVisible(false);
             navHeaderUserEmail.setText("Guest");
             loadNavigatedFragment(new HomeFragment(), TAG_HOME, homeItem);  //Load default Home fragment
             CartController cartController = new CartController();
@@ -185,6 +188,12 @@ public class MainActivity extends AppCompatActivity
             DatabaseController databaseController = new DatabaseController();
             databaseController.setDatabaseReference("users");
             databaseController.readOnce(mFirebaseUser.getUid());
+            boolean ifAdmin = databaseController.user.isAdmin();
+            Log.i(TAG, "value of ifAdmin = " + ifAdmin);
+            if (ifAdmin) {
+                MenuItem menuItemOrder = navigationView.getMenu().findItem(R.id.nav_orders);
+                menuItemOrder.setVisible(true);
+            }
         }
 
     }
@@ -308,6 +317,10 @@ public class MainActivity extends AppCompatActivity
         else if (id == R.id.nav_prices) {
             PricesFragment pricesFragment = new PricesFragment();
             loadNavigatedFragment(pricesFragment, TAG_PRICES, pricesItem);
+        }
+        else if (id == R.id.nav_orders){
+            OrdersFragment ordersFragment = new OrdersFragment();
+            loadNavigatedFragment(ordersFragment, TAG_ORDER, orderItem);
         }
         else if (id == R.id.nav_my_account){
             MyAccountFragment myAccountFragment = new MyAccountFragment();

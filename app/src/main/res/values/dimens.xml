@@ -9,5 +9,6 @@
     <dimen name="common_padding">5dp</dimen>
     <dimen name="padding_margin">16dp</dimen>
     <dimen name="header_text_size">16sp</dimen>
+    <dimen name="title_text_size">24sp</dimen>
     <dimen name="product_list_header_text_size">14sp</dimen>
 </resources>

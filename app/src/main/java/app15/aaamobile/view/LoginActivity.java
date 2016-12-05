@@ -8,6 +8,9 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -50,16 +53,19 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     // UI references.
     private AutoCompleteTextView mEmailView;
-    private EditText mPasswordView;
+    private EditText mFullName, mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
     private Button mEmailSignInButton, mSignUpButton;
+    private TextView mForgotPassword;
 
     private GoogleApiClient mGoogleApiClient;
     // Firebase instance variables
     private FirebaseAuth mFirebaseAuth;
     //Database handler
     private DatabaseController databaseController;
+    private boolean signUpClicked = false;
+    private FragmentManager fragmentManager;
 
 
     @Override
@@ -68,11 +74,15 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         setContentView(R.layout.activity_login);
         setupActionBar();
 
+        fragmentManager = getSupportFragmentManager();
         //getting UI references
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+        mFullName = (EditText) findViewById(R.id.full_name);
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         mPasswordView = (EditText) findViewById(R.id.password);
+        mForgotPassword = (TextView) findViewById(R.id.forgot_password);
+
         mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         com.google.android.gms.common.SignInButton gmailSignInButton = (com.google.android.gms.common.SignInButton) findViewById(R.id.gmail_sign_in_button);
         mSignUpButton = (Button) findViewById(R.id.sign_up_button);
@@ -82,6 +92,14 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         initDatabaseController();
         setupGoogleApiClient();
 
+        mForgotPassword.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ForgotPasswordFragment forgotPasswordFragment = new ForgotPasswordFragment();
+                forgotPasswordFragment.setStyle(DialogFragment.STYLE_NORMAL, R.style.CustomDialog);
+                forgotPasswordFragment.show(fragmentManager, "forgot");
+            }
+        });
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
@@ -108,7 +126,19 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         mSignUpButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                createAccount(mEmailView.getText().toString(), mPasswordView.getText().toString());
+                if (signUpClicked) {    //if sign up button has already been clicked once
+                    createAccount(mEmailView.getText().toString(), mPasswordView.getText().toString());
+                }
+                else{
+                    signUpClicked = true;
+                    setTitle("Create an account");
+                    mEmailSignInButton.setVisibility(View.GONE);
+                    mFullName.setVisibility(View.VISIBLE);
+                    View focusView = mFullName;
+                    focusView.requestFocus();
+
+
+                }
             }
         });
 
@@ -216,9 +246,13 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         String email = mFirebaseAuth.getCurrentUser().getEmail();
         String name = mFirebaseAuth.getCurrentUser().getDisplayName();
         if (name == null) {
-            name = "";
+            name = mFullName.getText().toString();
         }
         databaseController.writeUserData(uid, email, name, password, false);
+    }
+    private void setTitle(String title){
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setTitle(title);
     }
 
     // Set up the {@link android.app.ActionBar}, if the API is available.
@@ -234,28 +268,38 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         boolean valid = true;
         View focusView = null;
 
+        String fullName = mFullName.getText().toString();
         String email = mEmailView.getText().toString();
         String password = mPasswordView.getText().toString();
 
         // Reset errors.
+        mFullName.setError(null);
         mEmailView.setError(null);
         mPasswordView.setError(null);
-        //Validate the entered email, if user entered one
-        if (TextUtils.isEmpty(email)) {
-            mEmailView.setError(getString(R.string.error_field_required));
-            focusView = mEmailView;
-            valid = false;
-        } else if (!isEmailValid(email)) {
-            mEmailView.setError(getString(R.string.error_invalid_email));
-            focusView = mEmailView;
-            valid = false;
-        }
-
         //Password field is neither empty and valid
         if (TextUtils.isEmpty(password) || !isPasswordValid(password)) {
             mPasswordView.setError(getString(R.string.error_field_required));
             focusView = mPasswordView;
             valid = false;
+        }
+        //Validate the entered email, if user entered one
+        if (TextUtils.isEmpty(email)) {
+            mEmailView.setError(getString(R.string.error_field_required));
+            focusView = mEmailView;
+            valid = false;
+        }else {
+            if (!isEmailValid(email)) {
+                mEmailView.setError(getString(R.string.error_invalid_email));
+                focusView = mEmailView;
+                valid = false;
+            }
+        }
+        if (signUpClicked) {
+            if (TextUtils.isEmpty(fullName)) {
+                mFullName.setError(getString(R.string.error_field_required));
+                focusView = mFullName;
+                valid = false;
+            }
         }
         if (!valid) {
             focusView.requestFocus();
