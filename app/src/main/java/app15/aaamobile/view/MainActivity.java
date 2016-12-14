@@ -35,7 +35,7 @@ import app15.aaamobile.controller.CartController;
 import app15.aaamobile.controller.DatabaseController;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener{
 
     // tags used to attach the fragments
     private final String TAG_HOME = "home";
@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity
     //Cart item counter
     public static int mNotificationCount = 0;
     private static int navItemIndex = 0;
-    boolean doubleBackToExitPressedOnce = false;
+    private boolean doubleBackToExitPressedOnce = false;
 
     // toolbar titles respected to selected nav menu item
     private String[] activityTitles;
@@ -100,10 +100,12 @@ public class MainActivity extends AppCompatActivity
         mFirebaseAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                Log.i(TAG, "in onAuthStateChanged Listener");
                 initFirebaseAndCheckIfSignedIn();
             }//onAuthStateChanged
         };
         //Initilize firebase and check if the user is signed in otherwise welcome Guest
+        Log.i(TAG, "Before initFirebaseAndCheckIfSignedIn");
         initFirebaseAndCheckIfSignedIn();   // TODO: 2016-12-01 optimization, comment it 
         setupDatabase();
     }
@@ -122,7 +124,7 @@ public class MainActivity extends AppCompatActivity
             public void run() {
                 // updates the contents by replacing fragments
                 FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                fragmentTransaction.setCustomAnimations(android.R.anim.slide_out_right, android.R.anim.slide_out_right);
+                //fragmentTransaction.setCustomAnimations(android.R.anim.slide_out_right, android.R.anim.slide_out_right);
                 //fragmentTransaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right, android.R.anim.slide_in_left, android.R.anim.slide_out_right);
                 fragmentTransaction.replace(R.id.frame, fragment, CURRENT_TAG);
                 fragmentTransaction.commitAllowingStateLoss();
@@ -145,9 +147,11 @@ public class MainActivity extends AppCompatActivity
 
     private void initFirebaseAndCheckIfSignedIn(){
         // Initialize Firebase Auth
-        mFirebaseAuth = FirebaseAuth.getInstance();     // TODO: 2016-12-05 how to check  ifAdmin 
+        mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
+
         Menu menu = navigationView.getMenu();
+        //Navigation bar items references
         MenuItem menuItemLogin = menu.findItem(R.id.nav_login);
         MenuItem menuItemLogout = menu.findItem(R.id.nav_logout);
         MenuItem menuItemMyAccount = menu.findItem(R.id.nav_my_account);
@@ -155,8 +159,8 @@ public class MainActivity extends AppCompatActivity
         View headerView = navigationView.getHeaderView(0);
         TextView navHeaderUserEmail = (TextView) headerView.findViewById(R.id.nav_header_email);
 
+        // Not signed in OR when user logs out
         if (mFirebaseUser == null) {
-            // Not signed in
             menuItemLogin.setVisible(true);
             menuItemLogout.setVisible(false);
             menuItemMyAccount.setVisible(false);
@@ -165,12 +169,13 @@ public class MainActivity extends AppCompatActivity
             loadNavigatedFragment(new HomeFragment(), TAG_HOME, homeItem);  //Load default Home fragment
             CartController cartController = new CartController();
             cartController.clearCart();                                     //Remove all items from the cart
-            mNotificationCount = cartController.getProductsCount();
-        } else {
+            mNotificationCount = cartController.getOrdersCount();
+        }
+        //Signed in
+        else {
             menuItemLogin.setVisible(false);
             menuItemLogout.setVisible(true);
             menuItemMyAccount.setVisible(true);
-
             if (mFirebaseUser.getEmail().toString() != null) {
                 navHeaderUserEmail.setText(mFirebaseUser.getEmail().toString());
             }
@@ -184,18 +189,14 @@ public class MainActivity extends AppCompatActivity
         invalidateOptionsMenu();    //re draw the action toolbar
     }
     private void setupDatabase(){
-        if (mFirebaseUser != null) {
-            DatabaseController databaseController = new DatabaseController();
-            databaseController.setDatabaseReference("users");
-            databaseController.readOnce(mFirebaseUser.getUid());
-            boolean ifAdmin = databaseController.user.isAdmin();
-            Log.i(TAG, "value of ifAdmin = " + ifAdmin);
-            if (ifAdmin) {
-                MenuItem menuItemOrder = navigationView.getMenu().findItem(R.id.nav_orders);
-                menuItemOrder.setVisible(true);
-            }
-        }
+        MenuItem menuItemOrder = navigationView.getMenu().findItem(R.id.nav_orders);
+        DatabaseController databaseController = new DatabaseController();
 
+        if (mFirebaseUser != null) {
+            databaseController.setDatabaseReference("users");
+            databaseController.readOnce(mFirebaseUser.getUid(), menuItemOrder); //skickar med order menu ref, att visa den om det är en Admin
+            databaseController.readOrders();
+        }
     }
     @Override
     public void onBackPressed() {

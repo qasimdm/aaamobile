@@ -49,14 +49,14 @@ public class CartViewFragment extends Fragment {
         cartController = new CartController();
         checkIfCartEmpty();
 
-        ProductAdapter adapterLVCartItems = new ProductAdapter(getContext(), android.R.layout.simple_list_item_1, cartController.myProducts, this);
+        ProductAdapter adapterLVCartItems = new ProductAdapter(getContext(), android.R.layout.simple_list_item_1, cartController.getOrdersList(), this);
         lvCartItems.setAdapter(adapterLVCartItems);
         tvTotalPrice.setText(""+ cartController.getTotalPrice());
         //Redirects to the payment page if there is atleast 1 item in the cart
         btnShop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //if (cartController.getProductsCount()>0) {
+                //if (cartController.getOrdersCount()>0) {
                     PaymentDialogFragment payFragment = new PaymentDialogFragment();
                     payFragment.setStyle(DialogFragment.STYLE_NORMAL, R.style.CustomDialog);    //// TODO: 2016-11-15 fix style, title not visible, problem after Api 23
                     payFragment.show(fm, "PF");
@@ -70,7 +70,7 @@ public class CartViewFragment extends Fragment {
         btnClearCart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (cartController.getProductsCount() > 0){
+                if (cartController.getOrdersCount() > 0){
                     cartController.clearCart();
                     checkIfCartEmpty();
                 }
@@ -81,9 +81,9 @@ public class CartViewFragment extends Fragment {
     }
     //Checks if the cart is empty, if so, then sets empty msg visible and calls update total price method
     public void checkIfCartEmpty(){
-        if (cartController.getProductsCount() == 0){
+        if (cartController.getOrdersCount() == 0){
             tvEmptyCart.setVisibility(View.VISIBLE);
-            MainActivity.mNotificationCount = cartController.getProductsCount();
+            MainActivity.mNotificationCount = cartController.getOrdersCount();
             getActivity().invalidateOptionsMenu();  //update Actionbar
         }
         updateTotalPrice();

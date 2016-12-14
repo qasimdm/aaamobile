@@ -26,10 +26,9 @@ public class MyAccountFragment extends Fragment {
 
     private FragmentManager fm;
     private FirebaseAuth mAuth;
-    private FirebaseUser mUser;
     private DatabaseController dbController;
 
-    TextView tvUsername, tvEmail;
+    private TextView tvUsername, tvEmail;
 
     private String username;
     public MyAccountFragment() {
@@ -48,20 +47,20 @@ public class MyAccountFragment extends Fragment {
         fm = getActivity().getSupportFragmentManager();
         mAuth = FirebaseAuth.getInstance();
         if (mAuth != null) {
-            mUser = mAuth.getCurrentUser();
+            getUserInfo();
         }
-        getUserInfo();
 
         btnChangePassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 EditProfileFragment editProfileFragment = new EditProfileFragment();
+                //Setting a listener on EditProfile fragment that when dismiss() is called, it shall update the Display name text field in MyAccountFragment
                 editProfileFragment.setOnDismissListener(new DialogInterface.OnDismissListener() {
                     @Override
                     public void onDismiss(DialogInterface dialogInterface) {
                         if (dbController != null) {
-                            if (dbController.user != null) {
-                                username = dbController.user.getName();     //After setting username first time, set username also, as it's a tag for dialog fragment
+                            if (dbController.getUser() != null) {
+                                username = dbController.getUser().getName();     //After setting username first time, set username also, as it's a tag for dialog fragment
                                 tvUsername.setText(username);
                             }
                         }
@@ -77,8 +76,8 @@ public class MyAccountFragment extends Fragment {
     //Firebase database controller reference
     private void getUserInfo() {
         dbController = new DatabaseController();
-        username = dbController.user.getName();
-        String userEmail = dbController.user.getEmail();
+        username = dbController.getUser().getName();
+        String userEmail = dbController.getUser().getEmail();
         if ( username != null ) {
             if (!username.equals("")) {
                 tvUsername.setText(username);

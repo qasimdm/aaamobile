@@ -24,12 +24,10 @@ import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
 import app15.aaamobile.R;
 import app15.aaamobile.controller.DatabaseController;
-import app15.aaamobile.model.User;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -40,7 +38,7 @@ public class EditProfileFragment extends DialogFragment {
     private DatabaseController databaseController;
     Context context;
     //Firebase
-    FirebaseUser mCurrentUser;
+    private FirebaseUser mCurrentUser;
 
 
     private AutoCompleteTextView tvUsername;
@@ -87,7 +85,7 @@ public class EditProfileFragment extends DialogFragment {
 
                     if (!username.equals("")) {
                         databaseController.writeSingleItem("name", username);
-                        databaseController.user.setName(username);
+                        databaseController.getUser().setName(username);
                         UserProfileChangeRequest profileChangeRequest = new UserProfileChangeRequest.Builder()
                                 .setDisplayName(username).build();
                         mCurrentUser.updateProfile(profileChangeRequest).addOnCompleteListener(new OnCompleteListener<Void>() {

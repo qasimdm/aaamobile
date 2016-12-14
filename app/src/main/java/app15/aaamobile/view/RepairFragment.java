@@ -19,7 +19,8 @@ import java.util.Arrays;
 
 import app15.aaamobile.R;
 import app15.aaamobile.controller.CartController;
-import app15.aaamobile.model.Product;
+import app15.aaamobile.model.Order;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -100,9 +101,9 @@ public class RepairFragment extends Fragment implements AdapterView.OnItemSelect
                     Toast.makeText(getContext(), "Order not added to the cart. Select the required fields first.", Toast.LENGTH_SHORT ).show();
                 }
                 else{
-                    Product order = new Product(make + model, problem, 100);
-                    cartController.myProducts.add(order);
-                    MainActivity.mNotificationCount = cartController.getProductsCount();
+                    Order order = new Order(model, problem,"", 100); // TODO: 2016-12-06 fix uid
+                    cartController.addOrder(order);
+                    MainActivity.mNotificationCount = cartController.getOrdersCount();
                     getActivity().invalidateOptionsMenu();
                     Toast.makeText(getContext(), "Order added successfully to the cart", Toast.LENGTH_SHORT).show();
                 }
@@ -136,9 +137,9 @@ public class RepairFragment extends Fragment implements AdapterView.OnItemSelect
         switch (adapterView.getId()){
             case R.id.spinnerMake:
                 item = adapterView.getItemAtPosition(position).toString();
+                model.clear();
+                problem.clear();
                 if (item.equals("Select Make")){
-                    model.clear();
-                    problem.clear();
                     model.add(SELECT_MODEL);
                     problem.add("Select Problem");
                     spinnerModel.setEnabled(false);
@@ -146,8 +147,6 @@ public class RepairFragment extends Fragment implements AdapterView.OnItemSelect
                 }
                 else if (item.equals("Iphone")){ // TODO: 2016-11-08 fix spinners and update accordingly
                     String [] modelIphone = getResources().getStringArray(R.array.array_model_iphone);
-                    model.clear();
-                    problem.clear();
                     model.addAll(Arrays.asList(modelIphone));
                     problem.addAll(Arrays.asList(problemGeneric));
                     spinnerModel.setEnabled(true);
@@ -155,8 +154,6 @@ public class RepairFragment extends Fragment implements AdapterView.OnItemSelect
                 }
                 else if(item.equals("Samsung")){
                     String [] modelSamsung = getResources().getStringArray(R.array.array_model_samsung);
-                    model.clear();
-                    problem.clear();
                     model.addAll(Arrays.asList(modelSamsung));
                     problem.addAll(Arrays.asList(problemGeneric));
                     spinnerModel.setEnabled(true);
@@ -167,11 +164,6 @@ public class RepairFragment extends Fragment implements AdapterView.OnItemSelect
                 spinnerProblem.setItems(problem);
                 break;
             case R.id.spinnerModel:
-                //item = adapterView.getItemAtPosition(position).toString();
-                break;
-            case R.id.spinnerProblem:
-                //item = adapterView.getItemAtPosition(position).toString();
-
                 break;
             default:
                 break;

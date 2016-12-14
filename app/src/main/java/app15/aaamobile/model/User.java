@@ -5,6 +5,7 @@ import java.util.List;
 
 /**
  * Created by umyhafzaqa on 2016-11-07.
+ * User model, also contains an attribute of isAdmin to check if the user has the Administrator rights
  */
 public class User {
 
@@ -13,13 +14,14 @@ public class User {
     private String name;
     private String password;
     private boolean isAdmin;
-    private List<Order> orderList = new ArrayList<>();
+    private ArrayList<Order> orderList = new ArrayList<>();
 
     public User(){
     }
 
     public User(String uid, String email, String name, String password, boolean isAdmin){
         this.uid = uid;
+
         this.email = email;
         this.name = name;
         this.isAdmin = isAdmin;
@@ -59,5 +61,13 @@ public class User {
     }
     public void setAdmin(boolean admin) {
         isAdmin = admin;
+    }
+
+    public ArrayList<Order> getOrderList() {
+        return orderList;
+    }
+
+    public void setOrderList(ArrayList<Order> orderList) {
+        this.orderList = orderList;
     }
 }

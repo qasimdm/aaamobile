@@ -1,7 +1,6 @@
 package app15.aaamobile.view;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -13,11 +12,9 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TabHost;
-import android.widget.TextView;
 
 import app15.aaamobile.R;
 
@@ -25,12 +22,11 @@ import app15.aaamobile.R;
  * Created by umyhafzaqa on 2016-11-15.
  */
 public class PaymentDialogFragment extends DialogFragment {
-    final String TAG = "PaymentDialogFragment";
+    private final String TAG = "PaymentDialogFragment";
 
     private FragmentTabHost mTabHost;
     private ViewPager viewPager;
     private PaymentPagerAdapter adapter;
-
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

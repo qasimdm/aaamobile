@@ -53,6 +53,14 @@
         <item>Home button</item>
         <item>Volume button / Power button</item>
     </string-array>
+    <string-array name="array_status">
+        <item>No updates yet</item>
+        <item>Received In Warehouse</item>
+        <item>Under Process</item>
+        <item>Repaired Successfully</item>
+        <item>Repair Unsuccessfull</item>
+        <item>Sent from Warehouse</item>
+    </string-array>
     <string name="title_activity_login">Sign in</string>
     <!-- Strings related to payment -->
     <string name="prompt_card_no">Card number</string>
