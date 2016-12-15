@@ -188,6 +188,7 @@ public class MainActivity extends AppCompatActivity
         setToolbarTitle();
         invalidateOptionsMenu();    //re draw the action toolbar
     }
+
     private void setupDatabase(){
         MenuItem menuItemOrder = navigationView.getMenu().findItem(R.id.nav_orders);
         DatabaseController databaseController = new DatabaseController();
@@ -195,7 +196,7 @@ public class MainActivity extends AppCompatActivity
         if (mFirebaseUser != null) {
             databaseController.setDatabaseReference("users");
             databaseController.readOnce(mFirebaseUser.getUid(), menuItemOrder); //skickar med order menu ref, att visa den om det är en Admin
-            databaseController.readOrders();
+            //databaseController.readOrders();
         }
     }
     @Override

@@ -7,12 +7,13 @@ package app15.aaamobile.model;
  */
 public class Order {
     private String orderId;
+    private String orderNumber;
     private String orderTitle;
     private String orderDescription;
     private double price;
     private String status;
 
-    public Order(){
+    public Order(){ //Empty constructor required for firebase to deserialize
     }
     public Order(String title, String description, String status, double price){
         //this.orderId = orderId;
@@ -35,7 +36,13 @@ public class Order {
     public void setOrderId(String orderId) {
         this.orderId = orderId;
     }
+    public String getOrderNumber() {
+        return orderNumber;
+    }
 
+    public void setOrderNumber(String orderNumber) {
+        this.orderNumber = orderNumber;
+    }
     public String getOrderDescription() {
         return orderDescription;
     }

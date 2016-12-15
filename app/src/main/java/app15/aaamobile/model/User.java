@@ -16,7 +16,7 @@ public class User {
     private boolean isAdmin;
     private ArrayList<Order> orderList = new ArrayList<>();
 
-    public User(){
+    public User(){//Empty constructor required for firebase to deserialize
     }
 
     public User(String uid, String email, String name, String password, boolean isAdmin){

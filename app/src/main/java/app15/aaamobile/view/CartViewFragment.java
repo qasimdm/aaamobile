@@ -12,9 +12,13 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TabHost;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.firebase.auth.FirebaseAuth;
 
 import app15.aaamobile.R;
 import app15.aaamobile.controller.CartController;
+import app15.aaamobile.controller.DatabaseController;
 import app15.aaamobile.controller.ProductAdapter;
 
 
@@ -28,7 +32,7 @@ public class CartViewFragment extends Fragment {
     CartController cartController;
     TextView tvTotalPrice, tvEmptyCart;
     Button btnClearCart, btnShop;
-    TabHost tabHost;
+    DatabaseController dbController;
 
 
     public CartViewFragment() {
@@ -56,14 +60,18 @@ public class CartViewFragment extends Fragment {
         btnShop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //if (cartController.getOrdersCount()>0) {
+                if (cartController.getOrdersCount()>0) {
+                    String key = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                    dbController = new DatabaseController();
+                    dbController.setDatabaseReference("users");
+                    dbController.readOnce(key);
                     PaymentDialogFragment payFragment = new PaymentDialogFragment();
                     payFragment.setStyle(DialogFragment.STYLE_NORMAL, R.style.CustomDialog);    //// TODO: 2016-11-15 fix style, title not visible, problem after Api 23
                     payFragment.show(fm, "PF");
-               /* }
+                }
                 else{
                     Toast.makeText(getContext(), "Your cart is empty.", Toast.LENGTH_SHORT).show();
-                }*/     //Uncomment after paypal integration
+                }     //Uncomment after paypal integration
             }
         });
         //Removes all items from the cart

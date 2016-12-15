@@ -13,6 +13,8 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.paypal.android.sdk.payments.PayPalAuthorization;
 import com.paypal.android.sdk.payments.PayPalConfiguration;
 import com.paypal.android.sdk.payments.PayPalPayment;
@@ -87,8 +89,13 @@ public class PaypalFragment extends Fragment {
                     Log.i("paymentExample", confirm.toJSONObject().toString(4));
                     Toast.makeText(getContext(), "Payment: " + confirm.toJSONObject().toString(4), Toast.LENGTH_SHORT).show();
                     databaseController.setDatabaseReference("users");
-
-                    databaseController.writeOrder(auth.getCurrentUser().getUid(), cartController.getOrdersList());
+                    /*OnGetDataListener listener = new OnGetDataListener() {
+                        @Override
+                        public void onSuccess(DataSnapshot data) {
+                            databaseController.readOnce(auth.getCurrentUser().getUid());
+                        }
+                    };*/
+                    databaseController.writeOrder(auth.getCurrentUser().getUid(), cartController.getOrdersList()); //, listener);
 
                     // TODO: send 'confirm' to your server for verification.
                     // see https://developer.paypal.com/webapps/developer/docs/integration/mobile/verify-mobile-payment/
