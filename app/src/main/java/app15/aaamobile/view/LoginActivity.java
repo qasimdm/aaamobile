@@ -46,6 +46,7 @@ import app15.aaamobile.controller.DatabaseController;
 public class LoginActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener { //LoaderCallbacks<Cursor>,
 
     private final String TAG = "LoginActivity";
+    private final String TABLE_USER = "users";
     private final int RC_SIGN_IN = 9001;
 
     //Keep track of the login task to ensure we can cancel it if requested.
@@ -159,7 +160,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     private void initDatabaseController() {
         //String key = mFirebaseAuth.getCurrentUser().getUid();
         databaseController = new DatabaseController();
-        databaseController.setDatabaseReference("users");
+        databaseController.setDatabaseReference(TABLE_USER);
         //databaseController.readData(key);
     }
 

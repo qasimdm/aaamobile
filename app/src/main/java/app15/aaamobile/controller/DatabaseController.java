@@ -23,14 +23,11 @@ public class DatabaseController {   // TODO: 2016-12-15 make it singelton
     private FirebaseDatabase db;
     private DatabaseReference dbRef;
     private static User user = new User();   //for stability, initilizing User()
-    public static ArrayList<Order> staticOrderList = new ArrayList<>();
+    private ArrayList<Order> orderListForAdmin = new ArrayList<>();
 
     public DatabaseController(){
         db = FirebaseDatabase.getInstance();
        // dbRef = db.getReference();
-    }
-    public void setDatabaseReference(){
-        dbRef = db.getReference();
     }
     public void setDatabaseReference(String child){
         dbRef = db.getReference().child(child);
@@ -42,24 +39,7 @@ public class DatabaseController {   // TODO: 2016-12-15 make it singelton
     public User getUser(){
         return this.user;
     }
-    public void readData(String key){
-        Log.i("in DatabaseController", dbRef.toString());
-        dbRef.child(key).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                //This method is called once with initial value and when data at this location is updated
-                user = dataSnapshot.getValue(User.class);
-                Log.i("in onDataChange", dbRef.toString());
-                if (user != null){
-                    Log.i("in DatabaseController", "email fo the user is: " + user.getEmail());
-                }
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                //Failed to read the value
-            }
-        });
-    }
+
     public void readOnce(String key){
         dbRef.child(key).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -81,7 +61,6 @@ public class DatabaseController {   // TODO: 2016-12-15 make it singelton
                 Log.i("DbController", "Value of ifAdmin = " + user.isAdmin());
                 if (user.isAdmin()){
                     menuItem.setVisible(true);
-                    Log.i("DbController, ifisAdmin", "Value of ifAdmin= " + user.isAdmin());
                 }
             }
 
@@ -91,17 +70,40 @@ public class DatabaseController {   // TODO: 2016-12-15 make it singelton
             }
         });
     }
-    // Retrieves all orders from the database and fill listview in orders fragment, adapter is used to notifyDataSetChanged
-    public ArrayList<Order> readOrders(final OrderAdapter adapter){
+    public void readUserOrder(String key, final OnGetDataListener listener){
+        dbRef.child(key).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                fetchUserOrder(dataSnapshot, listener);
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
+    }
+    private void fetchUserOrder(DataSnapshot dataSnapshot, OnGetDataListener listener){
+        ArrayList<Order> orderArrayList = new ArrayList<>();
+        User user1 = dataSnapshot.getValue(User.class);
+        if (user1.getOrderList().size()>0) {
+            for (int i = 0; i < user1.getOrderList().size(); i++) { // for(Order order : user1.getOrderList()) {
+                user1.getOrderList().get(i).setOrderId(user1.getUid()); //saving user id to re-use it later while updating order status
+                orderArrayList.add(user1.getOrderList().get(i));
+            }
+            listener.onSuccess(orderArrayList);
+        }
+    }
+
+    // Retrieves all users orders from the database and fill listview in orders fragment (only visible for admin)
+    public void readOrders(final OnGetDataListener listener){
         //staticOrderList.clear();
         dbRef.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                fetchData(dataSnapshot, adapter);
+                fetchData(dataSnapshot, listener);
             }
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                fetchData(dataSnapshot, adapter);
+                fetchData(dataSnapshot, listener);
             }
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
@@ -116,41 +118,40 @@ public class DatabaseController {   // TODO: 2016-12-15 make it singelton
 
             }
         });
-        Log.i("db before retrun", "size = "+ staticOrderList.size());
-
-        return staticOrderList;
     }
-    private void  fetchData(DataSnapshot dataSnapshot, OrderAdapter adapter){
+    private void  fetchData(DataSnapshot dataSnapshot, OnGetDataListener listener){
+
         User user1 = dataSnapshot.getValue(User.class);
         if (user1.getOrderList().size()>0) {
             for (int i=0; i<user1.getOrderList().size(); i++){ // for(Order order : user1.getOrderList()) {
                 user1.getOrderList().get(i).setOrderId(user1.getUid()); //saving user id to re-use it later while updating order status
                 user1.getOrderList().get(i).setOrderNumber(Integer.toString(i));    //saving the index of order to later update it in the arraylist
-                staticOrderList.add(user1.getOrderList().get(i));
+                orderListForAdmin.add(user1.getOrderList().get(i));
             }
-            adapter.notifyDataSetChanged();
-            //Log.i("DB fetchData", order.getOrderId()+ "," + order.getOrderTitle() + ", array size " + staticOrderList.size());
+            if (orderListForAdmin.size()>0) {
+                listener.onSuccess(orderListForAdmin);
+            }
+            //adapter.notifyDataSetChanged();
         }
     }
-
+    //Create new user account
     public void writeUserData(String child, String email, String name, String password, boolean ifAdmin){
         User createUser = new User(child, email, name, password, ifAdmin);
         Log.i("In Database Controller", "User password: " + password);
         dbRef.child(child).setValue(createUser);    //child = key
     }
+    //Used by admin to update the status of order
     public void updateOrder(Order order){
         dbRef.child(order.getOrderId()).child("orderList").child(order.getOrderNumber()).child("status").setValue(order.getStatus());
     }
+    //to update a specific field value
     public void writeSingleItem(String fieldName, String value){
         dbRef.child(fieldName).setValue(value);
     }
     // Write an order in the database
     public void writeOrder(String key, ArrayList<Order> ordersList){ // OnGetDataListener listener){
-        //String orderKey = dbRef.child(key).push().getKey();
-        //Map<String, Order> orderMap = new HashMap<>();
-        //orderMap.put(orderKey, order);
         getUser().getOrderList().addAll(ordersList);
-        dbRef.child(key).child("orderList").setValue(user.getOrderList());
+        dbRef.child(key).child("orderList").setValue(getUser().getOrderList());
 
     }
 }

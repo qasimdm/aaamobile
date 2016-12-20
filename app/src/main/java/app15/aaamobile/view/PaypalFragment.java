@@ -32,7 +32,7 @@ import app15.aaamobile.controller.DatabaseController;
  */
 public class PaypalFragment extends Fragment {
     private static final String CLIENT_ID = "ATNyXyN9V-miHvSyOBNR6wuDKpPczEAtDoh4u8_fOAOXC9OEv_T1bcpU0IlTLoD7h6QRH12EjWPKbYG8";
-
+    private final String TABLE_USER = "users";
     private CartController cartController = new CartController();
     private DatabaseController databaseController;
     private FirebaseAuth auth;
@@ -88,7 +88,7 @@ public class PaypalFragment extends Fragment {
                 try {
                     Log.i("paymentExample", confirm.toJSONObject().toString(4));
                     Toast.makeText(getContext(), "Payment: " + confirm.toJSONObject().toString(4), Toast.LENGTH_SHORT).show();
-                    databaseController.setDatabaseReference("users");
+                    databaseController.setDatabaseReference(TABLE_USER);
                     /*OnGetDataListener listener = new OnGetDataListener() {
                         @Override
                         public void onSuccess(DataSnapshot data) {

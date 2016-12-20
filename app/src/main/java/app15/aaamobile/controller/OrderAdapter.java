@@ -23,6 +23,8 @@ import app15.aaamobile.model.User;
  */
 public class OrderAdapter extends ArrayAdapter<Order> {
 
+    private final String TABLE_USER = "users";
+
     DatabaseController dbController;
     ArrayList<Order> ordersList;
     ArrayList<String> orderStatus;
@@ -32,7 +34,7 @@ public class OrderAdapter extends ArrayAdapter<Order> {
     public OrderAdapter(Context context, int resource, ArrayList<Order> ordersList) {
         super(context, resource, ordersList);
         dbController = new DatabaseController();
-        dbController.setDatabaseReference("users");
+        dbController.setDatabaseReference(TABLE_USER);
         this.ordersList = ordersList;
         orderStatus = new ArrayList<>();
         orderStatus.addAll(Arrays.asList( getContext().getResources().getStringArray(R.array.array_status) ));

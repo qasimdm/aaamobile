@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
         <ImageView
             android:id="@+id/header_cover_image"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="150dp"
             android:scaleType="centerCrop"
             android:src="@drawable/profile_header_bg"/>
 
@@ -34,7 +35,7 @@
             android:layout_below="@+id/header_cover_image"
             android:background="#eb131312"
             android:elevation="4dp"
-            android:paddingBottom="24dp">
+            android:paddingBottom="8dp">
             <ImageButton
                 android:id="@+id/user_profile_change_password"
                 android:layout_width="30dp"
@@ -62,13 +63,12 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/user_profile_name"
                 android:layout_centerHorizontal="true"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="8dp"
                 android:text="example@example.com"
                 android:textColor="#fff"
                 android:textSize="14sp" />
 
         </RelativeLayout>
-
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -78,39 +78,34 @@
             android:orientation="vertical">
 
             <TextView
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:background="#cec702"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:background="@color/dark_yellow"
                 android:gravity="center"
                 android:textStyle="bold"
                 android:elevation="4dp"
                 android:padding="2dp"
                 android:text="Order History" />
 
-            <TextView
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:background="#fff"
-                android:clickable="true"
-                android:elevation="4dp"
-                android:padding="20dp"
-                android:text="Order number 1" />
-
-            <TextView
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:layout_marginBottom="3dp"
-                android:layout_marginTop="3dp"
-                android:background="#fff"
-                android:clickable="true"
-                android:elevation="4dp"
-                android:padding="20dp"
-                android:text="Order number 2" />
-
-
         </LinearLayout>
     </RelativeLayout>
-</ScrollView>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <ExpandableListView
+            android:id="@+id/list_view_user_order"
+            android:clickable="true"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+        </ExpandableListView>
+        <!--
+         <ExpandableListView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"></ExpandableListView>
+        -->
+
+    </LinearLayout>
+
+</LinearLayout>

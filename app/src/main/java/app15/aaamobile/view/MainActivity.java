@@ -37,6 +37,7 @@ import app15.aaamobile.controller.DatabaseController;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener{
 
+    private final String TABLE_USER = "users";
     // tags used to attach the fragments
     private final String TAG_HOME = "home";
     private final String TAG_REPAIR = "repair";
@@ -194,8 +195,9 @@ public class MainActivity extends AppCompatActivity
         DatabaseController databaseController = new DatabaseController();
 
         if (mFirebaseUser != null) {
-            databaseController.setDatabaseReference("users");
+            databaseController.setDatabaseReference(TABLE_USER);
             databaseController.readOnce(mFirebaseUser.getUid(), menuItemOrder); //skickar med order menu ref, att visa den om det är en Admin
+            //databaseController.readUserOrder(mFirebaseUser.getUid());
             //databaseController.readOrders();
         }
     }

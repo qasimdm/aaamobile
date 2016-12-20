@@ -26,13 +26,14 @@ import app15.aaamobile.controller.ProductAdapter;
  * A simple {@link Fragment} subclass.
  */
 public class CartViewFragment extends Fragment {
+    private final String TABLE_USER = "users";
 
-    FragmentManager fm;
-    ListView lvCartItems;
-    CartController cartController;
-    TextView tvTotalPrice, tvEmptyCart;
-    Button btnClearCart, btnShop;
-    DatabaseController dbController;
+    private FragmentManager fm;
+    private ListView lvCartItems;
+    private CartController cartController;
+    private TextView tvTotalPrice, tvEmptyCart;
+    private Button btnClearCart, btnShop;
+    private DatabaseController dbController;
 
 
     public CartViewFragment() {
@@ -63,7 +64,7 @@ public class CartViewFragment extends Fragment {
                 if (cartController.getOrdersCount()>0) {
                     String key = FirebaseAuth.getInstance().getCurrentUser().getUid();
                     dbController = new DatabaseController();
-                    dbController.setDatabaseReference("users");
+                    dbController.setDatabaseReference(TABLE_USER);
                     dbController.readOnce(key);
                     PaymentDialogFragment payFragment = new PaymentDialogFragment();
                     payFragment.setStyle(DialogFragment.STYLE_NORMAL, R.style.CustomDialog);    //// TODO: 2016-11-15 fix style, title not visible, problem after Api 23

@@ -33,6 +33,8 @@ import app15.aaamobile.controller.DatabaseController;
  * A simple {@link Fragment} subclass.
  */
 public class EditProfileFragment extends DialogFragment {
+    private final String TABLE_USER = "users";
+    private final String PASSWORD_FIELD = "password";
 
     private DialogInterface.OnDismissListener onDismissListener;
     private DatabaseController databaseController;
@@ -81,7 +83,7 @@ public class EditProfileFragment extends DialogFragment {
             public void onClick(View view) {
                 if (validateFields()){
                     String key = mCurrentUser.getUid();
-                    databaseController.setDatabaseReference("users", key);
+                    databaseController.setDatabaseReference(TABLE_USER, key);
 
                     if (!username.equals("")) {
                         databaseController.writeSingleItem("name", username);
@@ -172,12 +174,10 @@ public class EditProfileFragment extends DialogFragment {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if(task.isSuccessful()){
-                                Log.i("TAG", "Password changed successfully");
+                                databaseController.writeSingleItem(PASSWORD_FIELD, etNewPassword.getText().toString());
                                 Toast.makeText(context, "Password changed successfully", Toast.LENGTH_SHORT).show();
-                                databaseController.writeSingleItem("password", etNewPassword.getText().toString());
                             }
                             else{
-                                Log.i("TAG", "Failed to changed the password");
                                 Toast.makeText(context, "Failed to changed the password", Toast.LENGTH_SHORT).show();
                             }
 
@@ -185,7 +185,6 @@ public class EditProfileFragment extends DialogFragment {
                     });
                 }
                 else{
-                    Log.i("TAG", "Authentication failed, Please try again");
                     Toast.makeText(context, "Authentication failed, Please try again", Toast.LENGTH_SHORT).show();
                 }
 

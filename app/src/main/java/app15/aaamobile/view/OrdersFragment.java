@@ -20,9 +20,11 @@ import app15.aaamobile.model.Order;
  * A simple {@link Fragment} subclass.
  */
 public class OrdersFragment extends Fragment {
-    DatabaseController dbController;
-    OrderAdapter adapter;
-    private ArrayList<Order> orderList = new ArrayList<>();
+    private final String TABLE_USER = "users";
+
+    private ListView ordersListView;
+    private DatabaseController dbController;
+    private OrderAdapter adapter;
 
     public OrdersFragment() {
         // Required empty public constructor
@@ -35,14 +37,18 @@ public class OrdersFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_orders, container, false);
         dbController = new DatabaseController();
-        dbController.setDatabaseReference("users");
-        dbController.staticOrderList.clear();
-        ListView ordersListView = (ListView) view.findViewById(R.id.list_orders);
+        dbController.setDatabaseReference(TABLE_USER);
+        ordersListView = (ListView) view.findViewById(R.id.list_orders);
 
-        adapter = new OrderAdapter(getContext(), android.R.layout.simple_list_item_1, dbController.staticOrderList); //dbController.getUser().getOrderList()
-        dbController.readOrders(adapter);
-        ordersListView.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
+        dbController.readOrders(new OnGetDataListener() {
+            @Override
+            public void onSuccess(ArrayList<Order> orderListForAdmin) {
+                adapter = new OrderAdapter(getContext(), android.R.layout.simple_list_item_1, orderListForAdmin); //dbController.getUser().getOrderList()
+                ordersListView.setAdapter(adapter);
+                adapter.notifyDataSetChanged();
+            }
+        });
+
 
         return view;
     }

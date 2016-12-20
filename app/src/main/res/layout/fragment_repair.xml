@@ -12,6 +12,7 @@
 
     <Spinner
         android:id="@+id/spinnerMake"
+        android:spinnerMode="dialog"
         style="@style/RepairPageSpinner"></Spinner>
 
     <TextView
@@ -20,6 +21,7 @@
 
     <Spinner
         android:id="@+id/spinnerModel"
+        android:spinnerMode="dialog"
         style="@style/RepairPageSpinner"></Spinner>
 
     <TextView

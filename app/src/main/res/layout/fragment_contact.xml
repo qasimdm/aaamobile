@@ -1,13 +1,46 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="app15.aaamobile.view.ContactFragment">
+    android:layout_margin="@dimen/activity_horizontal_margin"
+    tools:context="app15.aaamobile.view.ContactFragment"
+    android:orientation="vertical">
 
-    <!-- TODO: Update blank fragment layout -->
+    <TextView
+        android:text="Manchester Branch"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:fontFamily="casual"
+        android:gravity="center_horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="contact fragment" />
+        android:layout_height="wrap_content"
+        android:text="Unit 55, Stretford Shopping Mall
+Stretford
+Manchester
+M32 9BD
+Tel : 0161 864 4787"
+        android:gravity="center_horizontal"
+        android:fontFamily="casual"
+        android:textStyle="bold"
+        />
 
-</FrameLayout>
+    <TextView
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:textStyle="bold"
+        android:fontFamily="casual"
+        android:text="You can contact us on following Email Addresses
+
+Email: info@aaamobiles.co.uk
+Repairs: repairs@aaamobiles.co.uk
+Sales: sales@aaamobiles.co.uk
+
+Thanks for taking the time to contact us!
+We do our best to respond to quickly, it could take us 1-2 business days to get back to you. Feel free to say hello!"
+        android:gravity="center_horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>

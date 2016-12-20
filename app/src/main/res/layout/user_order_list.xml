@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <android.support.v7.widget.CardView
+        android:id="@+id/cv_order_title"
+        app:cardBackgroundColor="@color/dark_yellow"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        >
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/tv_user_order_title"
+            android:text="Order number 1"
+            android:textStyle="bold"
+            android:textSize="@dimen/header_text_size"
+            android:gravity="center_horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+       <!-- <TextView
+            android:id="@+id/tv_user_order_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:background="#fff"
+            android:clickable="true"
+            android:elevation="4dp"
+            android:padding="20dp"
+            android:text="Order number 1" />
+            -->
+        </LinearLayout>
+
+    </android.support.v7.widget.CardView>
+
+    <LinearLayout
+        android:id="@+id/ll_order_details"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:orientation="vertical"
+        >
+        <TextView
+            android:id="@+id/tv_user_order_detailed_title"
+            android:text="Order Title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/tv_user_order_detailed_description"
+            android:text="Order Description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+</LinearLayout>
