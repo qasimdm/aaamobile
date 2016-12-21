@@ -67,6 +67,7 @@ public class CartViewFragment extends Fragment {
                     dbController.setDatabaseReference(TABLE_USER);
                     dbController.readOnce(key);
                     PaymentDialogFragment payFragment = new PaymentDialogFragment();
+
                     payFragment.setStyle(DialogFragment.STYLE_NORMAL, R.style.CustomDialog);    //// TODO: 2016-11-15 fix style, title not visible, problem after Api 23
                     payFragment.show(fm, "PF");
                 }

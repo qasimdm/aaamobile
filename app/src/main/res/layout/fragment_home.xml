@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:padding="@dimen/padding_margin"
-        android:src="@drawable/aaa" />
+        android:src="@drawable/app_aaa_icon" />
 
     <TextView
         android:fontFamily="casual"

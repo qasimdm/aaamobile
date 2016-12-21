@@ -1,5 +1,7 @@
 package app15.aaamobile.model;
 
+import java.util.Date;
+
 /**
  * Created by umyhafzaqa on 2016-11-23.
  * Order model, contains the details of an order.
@@ -12,6 +14,7 @@ public class Order {
     private String orderDescription;
     private double price;
     private String status;
+    private Date date;
 
     public Order(){ //Empty constructor required for firebase to deserialize
     }
@@ -63,6 +66,13 @@ public class Order {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
     }
 
 }

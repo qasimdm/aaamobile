@@ -22,7 +22,6 @@ import app15.aaamobile.R;
  * Created by umyhafzaqa on 2016-11-15.
  */
 public class PaymentDialogFragment extends DialogFragment {
-    private final String TAG = "PaymentDialogFragment";
 
     private FragmentTabHost mTabHost;
     private ViewPager viewPager;
@@ -41,7 +40,6 @@ public class PaymentDialogFragment extends DialogFragment {
             //Setting Card Payment tab
             mTabHost.addTab(mTabHost.newTabSpec("tab2").setIndicator("Bank/Credit Card"), Fragment.class, null);
 
-
             adapter = new PaymentPagerAdapter(getChildFragmentManager(), getArguments());
             adapter.setTitles(new String[]{"Paypal", "Card"});
 
@@ -51,17 +49,12 @@ public class PaymentDialogFragment extends DialogFragment {
             viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
                 @Override
                 public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
                 }
-
                 @Override
                 public void onPageSelected(int position) {
-
                 }
-
                 @Override
                 public void onPageScrollStateChanged(int state) {
-
                 }
             });
 
@@ -75,6 +68,12 @@ public class PaymentDialogFragment extends DialogFragment {
 
             return view;
         }
+    /*@Override
+    public void onPause() {
+        // TODO Auto-generated method stub
+        super.onPause();
+        this.dismiss();
+    }*/
 
     private void setupTab(final View view, final String tag) {
         View tabview = createTabView(mTabHost.getContext(), tag);

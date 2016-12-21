@@ -159,7 +159,7 @@ public class MainActivity extends AppCompatActivity
         MenuItem menuItemOrders = menu.findItem(R.id.nav_orders);
         View headerView = navigationView.getHeaderView(0);
         TextView navHeaderUserEmail = (TextView) headerView.findViewById(R.id.nav_header_email);
-
+        CartController cartController = new CartController();
         // Not signed in OR when user logs out
         if (mFirebaseUser == null) {
             menuItemLogin.setVisible(true);
@@ -168,9 +168,7 @@ public class MainActivity extends AppCompatActivity
             menuItemOrders.setVisible(false);
             navHeaderUserEmail.setText("Guest");
             loadNavigatedFragment(new HomeFragment(), TAG_HOME, homeItem);  //Load default Home fragment
-            CartController cartController = new CartController();
             cartController.clearCart();                                     //Remove all items from the cart
-            mNotificationCount = cartController.getOrdersCount();
         }
         //Signed in
         else {
@@ -186,6 +184,7 @@ public class MainActivity extends AppCompatActivity
                String mPhotoUrl = mFirebaseUser.getPhotoUrl().toString();
             }
         }
+        mNotificationCount = cartController.getOrdersCount();
         setToolbarTitle();
         invalidateOptionsMenu();    //re draw the action toolbar
     }
