@@ -25,21 +25,23 @@ dependencies {
     // FirebaseUI Database only
     // FirebaseUI Auth only
     //compile 'com.google.android.gms:play-services-wallet:9.8.0'
-    compile 'com.android.support:appcompat-v7:25.0.0'
-    compile 'com.android.support:design:25.0.0'
-    compile 'com.android.support:support-v4:25.0.0'
+    //compile 'com.firebase:firebase-client-android:2.5.2+'
+    compile('com.paypal.sdk:paypal-android-sdk:2.15.1') {
+        exclude group: "io.card"
+    }
+
+    compile 'com.android.support:appcompat-v7:25.0.1'
+    compile 'com.android.support:design:25.0.1'
+    compile 'com.android.support:support-v4:25.0.1'
     compile 'com.google.firebase:firebase-core:9.8.0'
     compile 'com.google.firebase:firebase-database:9.8.0'
     compile 'com.google.firebase:firebase-auth:9.8.0'
     compile 'com.firebaseui:firebase-ui:0.6.2'
-    //compile 'com.firebase:firebase-client-android:2.5.2+'
     compile 'com.stripe:stripe-android:+'
     compile 'io.card:android-sdk:5.4.2'
-    compile ('com.paypal.sdk:paypal-android-sdk:2.15.1') {
-                exclude group: "io.card"
-            }
-
 }
+
+
 
 
 

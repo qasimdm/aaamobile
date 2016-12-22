@@ -11,4 +11,6 @@
     <color name="dark_yellow">#cec702</color>
     <color name="light_grey">#e7e6e6</color>
     <color name="dark_grey">#1b1b1b</color>
+
+    <color name="black_overlay">#66000000</color>
 </resources>

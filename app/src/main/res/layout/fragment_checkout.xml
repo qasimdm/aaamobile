@@ -1,0 +1,55 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="@dimen/padding_margin"
+    android:layout_margin="@dimen/activity_vertical_margin"
+    tools:context="app15.aaamobile.view.Checkout">
+
+    <TextView
+        android:text="Select Payment Method"
+        android:gravity="center_horizontal"
+        android:textSize="@dimen/title_text_size"
+        android:textStyle="bold"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <LinearLayout
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:orientation="horizontal"
+        android:weightSum="1.0"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+        <ImageView
+            android:id="@+id/btn_select_paypal_method"
+            android:src="@drawable/paypal_logo"
+            android:clickable="true"
+            android:layout_weight="0.45"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:text="|"
+            android:layout_weight="0.1"
+            android:visibility="invisible"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <ImageView
+            android:id="@+id/btn_select_card_method"
+            android:src="@drawable/card_logo"
+            android:clickable="true"
+            android:layout_weight="0.45"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+
+    <Button
+        android:id="@+id/btn_checkout"
+        android:text="CHECKOUT"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>

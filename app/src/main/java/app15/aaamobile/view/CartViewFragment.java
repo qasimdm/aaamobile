@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -50,7 +49,7 @@ public class CartViewFragment extends Fragment {
         tvTotalPrice = (TextView)view.findViewById(R.id.tvTotalPrice);
         tvEmptyCart = (TextView)view.findViewById(R.id.tv_empty_cart_msg);
         btnClearCart = (Button)view.findViewById(R.id.btn_clear_cart);
-        btnShop = (Button)view.findViewById(R.id.btn_checkout);
+        btnShop = (Button)view.findViewById(R.id.btn_shop);
         cartController = new CartController();
         checkIfCartEmpty();
 
@@ -66,10 +65,12 @@ public class CartViewFragment extends Fragment {
                     dbController = new DatabaseController();
                     dbController.setDatabaseReference(TABLE_USER);
                     dbController.readOnce(key);
-                    PaymentDialogFragment payFragment = new PaymentDialogFragment();
-
+                    /*PaymentDialogFragment payFragment = new PaymentDialogFragment();
                     payFragment.setStyle(DialogFragment.STYLE_NORMAL, R.style.CustomDialog);    //// TODO: 2016-11-15 fix style, title not visible, problem after Api 23
-                    payFragment.show(fm, "PF");
+                    payFragment.show(fm, "PF");*/
+                    Checkout checkoutFrag = new Checkout();
+                    checkoutFrag.setStyle(DialogFragment.STYLE_NORMAL, R.style.CustomDialog);
+                    checkoutFrag.show(fm, "PF");
                 }
                 else{
                     Toast.makeText(getContext(), "Your cart is empty.", Toast.LENGTH_SHORT).show();

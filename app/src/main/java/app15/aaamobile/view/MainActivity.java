@@ -62,6 +62,7 @@ public class MainActivity extends AppCompatActivity
     //Cart item counter
     public static int mNotificationCount = 0;
     private static int navItemIndex = 0;
+
     private boolean doubleBackToExitPressedOnce = false;
 
     // toolbar titles respected to selected nav menu item
