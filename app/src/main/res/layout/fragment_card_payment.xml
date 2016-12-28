@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context="app15.aaamobile.view.CardPayment">
-
+<!--
     <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -83,5 +83,6 @@
         android:text="Scan Card"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
+    -->
 
 </LinearLayout>

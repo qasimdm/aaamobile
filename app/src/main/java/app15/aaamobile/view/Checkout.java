@@ -17,9 +17,9 @@ import app15.aaamobile.R;
 
 public class Checkout extends DialogFragment {
     private int selection = 0;
-    private int nothingSelected = 0;
-    private int paypalSelected = 1;
-    private int cardSelected = 2;
+    private final int nothingSelected = 0;
+    private final int paypalSelected = 80;
+    private final int cardSelected = 67;
 
     FragmentManager fm;
     //UI refs
