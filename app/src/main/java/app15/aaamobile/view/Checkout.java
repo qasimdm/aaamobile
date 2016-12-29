@@ -82,6 +82,7 @@ public class Checkout extends DialogFragment {
             public void onClick(View view) {
                 Intent intent = new Intent(getActivity(), PaymentActivity.class);
                 intent.putExtra("paymentType", selection);
+                dismiss();
                 startActivity(intent);
             }
         });

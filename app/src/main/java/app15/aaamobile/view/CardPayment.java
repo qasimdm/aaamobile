@@ -24,6 +24,9 @@ import io.card.payment.CreditCard;
 /**
  * A simple {@link Fragment} subclass.
  */
+
+
+
 public class CardPayment extends Fragment {
     private final int MY_SCAN_REQUEST_CODE = 0;
 

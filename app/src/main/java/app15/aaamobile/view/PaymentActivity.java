@@ -23,12 +23,19 @@ import com.paypal.android.sdk.payments.PayPalConfiguration;
 import com.paypal.android.sdk.payments.PayPalPayment;
 import com.paypal.android.sdk.payments.PayPalService;
 import com.paypal.android.sdk.payments.PaymentConfirmation;
+import com.stripe.android.Stripe;
+import com.stripe.android.TokenCallback;
+import com.stripe.android.model.Card;
+import com.stripe.android.model.Token;
+import com.stripe.exception.AuthenticationException;
 
 import java.math.BigDecimal;
 
 import app15.aaamobile.R;
 import app15.aaamobile.controller.CartController;
 import app15.aaamobile.controller.DatabaseController;
+import io.card.payment.CardIOActivity;
+import io.card.payment.CreditCard;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -36,14 +43,17 @@ import app15.aaamobile.controller.DatabaseController;
  */
 public class PaymentActivity extends AppCompatActivity {
 
+    private final int MY_SCAN_REQUEST_CODE = 8;
     private static final String CLIENT_ID = "ATNyXyN9V-miHvSyOBNR6wuDKpPczEAtDoh4u8_fOAOXC9OEv_T1bcpU0IlTLoD7h6QRH12EjWPKbYG8";
     private final int nothingSelected = 0;
     private final int paypalSelected = 80;
     private final int cardSelected = 67;
 
-    private final String TABLE_USER = "users";
     private AutoCompleteTextView tvCardNumber, tvCardExpMonth, tvCardExpYear, tvCardCVC;
-    LinearLayout layoutCardPayment;
+    private LinearLayout layoutCardPayment;
+    Button btnCardPay, btnCardScan;
+
+    private final String TABLE_USER = "users";
     private CartController cartController = new CartController();
     private DatabaseController databaseController;
     private FirebaseAuth auth;
@@ -59,7 +69,7 @@ public class PaymentActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         int paymentType = getIntent().getIntExtra("paymentType", nothingSelected);
-        Log.i("Payment act", "value: "+paymentType);
+        Log.i("Payment act", "value: " + paymentType);
         setContentView(R.layout.activity_payment);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -70,20 +80,16 @@ public class PaymentActivity extends AppCompatActivity {
             paypalPayment();
         }
         // if Card payment was selected
-        else if (paymentType == cardSelected){
-            layoutCardPayment = (LinearLayout)findViewById(R.id.ll_card_payment);
-            layoutCardPayment.setVisibility(View.VISIBLE);
-            tvCardNumber = (AutoCompleteTextView)findViewById(R.id.et_card_number);
-            tvCardExpMonth = (AutoCompleteTextView)findViewById(R.id.et_card_exp_month);
-            tvCardExpYear = (AutoCompleteTextView)findViewById(R.id.et_card_exp_year);
-            tvCardCVC = (AutoCompleteTextView)findViewById(R.id.et_card_cvc);
-            
+        else if (paymentType == cardSelected) {
+            initUiReferences();
+
+
         }
 
 
     }
 
-    private void paypalPayment(){
+    private void paypalPayment() {
         databaseController = new DatabaseController();
         auth = FirebaseAuth.getInstance();
         //Button btnPaypal = (Button) findViewById(R.id.btn_pp_make_payment);
@@ -105,9 +111,43 @@ public class PaymentActivity extends AppCompatActivity {
 
         startActivityForResult(pp, 0);
     }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == Activity.RESULT_OK) {
+        super.onActivityResult(requestCode, resultCode, data);
+        //Card scan activity result
+        if (requestCode == MY_SCAN_REQUEST_CODE) {
+            String resultDisplayStr;
+            if (data != null && data.hasExtra(CardIOActivity.EXTRA_SCAN_RESULT)) {
+                CreditCard scanResult = data.getParcelableExtra(CardIOActivity.EXTRA_SCAN_RESULT);
+
+                // Never log a raw card number. Avoid displaying it, but if necessary use getFormattedCardNumber()
+                resultDisplayStr = "Card Number: " + scanResult.getRedactedCardNumber() + "\n";
+                Log.i("CardPayment", resultDisplayStr);
+
+                if (scanResult.isExpiryValid()) {
+                    resultDisplayStr += "Expiration Date: " + scanResult.expiryMonth + "/" + scanResult.expiryYear + "\n";
+                    Log.i("CardPayment", resultDisplayStr);
+                }
+
+                if (scanResult.cvv != null) {
+                    // Never log or display a CVV
+                    resultDisplayStr += "CVV has " + scanResult.cvv.length() + " digits.\n";
+                    Log.i("CardPayment", resultDisplayStr);
+                }
+
+                if (scanResult.postalCode != null) {
+                    resultDisplayStr += "Postal Code: " + scanResult.postalCode + "\n";
+                    Log.i("CardPayment", resultDisplayStr);
+                }
+            } else {
+                resultDisplayStr = "Scan was canceled.";
+                Log.i("CardPayment", resultDisplayStr);
+            }
+
+        }   //END if MY_SCAN_REQUEST_CODE
+        // else if paypal method was selected
+        else if (resultCode == Activity.RESULT_OK) {
             PaymentConfirmation confirm = data.getParcelableExtra(com.paypal.android.sdk.payments.PaymentActivity.EXTRA_RESULT_CONFIRMATION);
             if (confirm != null) {
 
@@ -117,14 +157,17 @@ public class PaymentActivity extends AppCompatActivity {
                 //Clear cart, so item counter badge on toolbar updates as well
                 cartController.clearCart();
                 //finish whole application and start a new Main Activity
-                finishAffinity();   // TODO: 2016-12-28 close the previous activity and start new MainActivity 
-                Intent intent = new Intent(this, MainActivity.class);
+                //finishAffinity();   // TODO: 2016-12-28 close the previous activity and start new MainActivity
+                Intent intent = new Intent(PaymentActivity.this, MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
+                //finish();
                 Toast.makeText(this, "Order placed successfully!", Toast.LENGTH_LONG).show();
 
             }
         } else if (resultCode == Activity.RESULT_CANCELED) {
             Log.i("paymentExample", "The user canceled.");
+            finish();
         } else if (resultCode == com.paypal.android.sdk.payments.PaymentActivity.RESULT_EXTRAS_INVALID) {
             Log.i("paymentExample", "An invalid Payment or PayPalConfiguration was submitted. Please see the docs.");
         }
@@ -132,6 +175,73 @@ public class PaymentActivity extends AppCompatActivity {
 
     private void sendAuthorizationToServer(PayPalAuthorization authorization) {
         //as name suggests, send auth to server
+    }
+
+    public void onScanPress(View v) {
+        Intent scanIntent = new Intent(PaymentActivity.this, CardIOActivity.class);
+
+        // customize these values to suit your needs.
+        scanIntent.putExtra(CardIOActivity.EXTRA_REQUIRE_EXPIRY, true); // default: false
+        scanIntent.putExtra(CardIOActivity.EXTRA_REQUIRE_CVV, true); // default: false
+        scanIntent.putExtra(CardIOActivity.EXTRA_REQUIRE_POSTAL_CODE, false); // default: false
+
+        // MY_SCAN_REQUEST_CODE is arbitrary and is only used within this activity.
+        startActivityForResult(scanIntent, MY_SCAN_REQUEST_CODE);
+    }
+
+    public void initUiReferences() {
+        layoutCardPayment = (LinearLayout) findViewById(R.id.ll_card_payment);
+        layoutCardPayment.setVisibility(View.VISIBLE);
+        tvCardNumber = (AutoCompleteTextView) findViewById(R.id.et_card_number);
+        tvCardExpMonth = (AutoCompleteTextView) findViewById(R.id.et_card_exp_month);
+        tvCardExpYear = (AutoCompleteTextView) findViewById(R.id.et_card_exp_year);
+        tvCardCVC = (AutoCompleteTextView) findViewById(R.id.et_card_cvc);
+        btnCardScan = (Button) findViewById(R.id.btn_io_read_card);
+        btnCardPay = (Button) findViewById(R.id.btn_make_card_payment);
+
+        btnCardScan.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onScanPress(view);
+            }
+        });
+        btnCardPay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String cardNumber = tvCardNumber.getText().toString();
+                String cardCVC = tvCardCVC.getText().toString();
+                String strCardMonth = tvCardExpMonth.getText().toString();  //string format of card expiry month
+                String strCardYear = tvCardExpYear.getText().toString();    //string format of card expiry year
+                int cardExpMonth = 0, cardExpYear = 0;
+
+                if (!(strCardMonth).equals("") && !(strCardYear).equals("")) {    //checking if user didn't enter month or year
+                    cardExpMonth = Integer.parseInt(tvCardExpMonth.getText().toString());
+                    cardExpYear = Integer.parseInt(tvCardExpYear.getText().toString());
+                }
+
+                Card card = new Card(cardNumber, cardExpMonth, cardExpYear, cardCVC);    //4242 4242 4242 4242, 12, 2017, 123
+                if (!card.validateCard()) {  //validates if card number, date and cvc are entered correctly
+                    Toast.makeText(PaymentActivity.this, "Card Details are not correct", Toast.LENGTH_SHORT).show();
+                } else {
+                    try {
+                        Stripe stripe = new Stripe("pk_test_TA7H4JwpV3t8MTOfbRyeeBzd");
+                        stripe.createToken(card, new TokenCallback() {
+                            @Override
+                            public void onError(Exception error) {
+                                Toast.makeText(PaymentActivity.this, error.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                            }
+
+                            @Override
+                            public void onSuccess(Token token) {
+                                Toast.makeText(PaymentActivity.this, "Payment succeeded", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    } catch (AuthenticationException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
     }
 
     @Override
@@ -155,6 +265,4 @@ public class PaymentActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-
-
 }
